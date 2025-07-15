@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "updated-point-system-api-collection",
     "name": "📱 포인트 적립/사용 시스템 API v2.0 (업데이트됨)",
-    "description": "\n# 🚀 포인트 적립/사용 시스템 API v2.0\n\nSupabase를 백엔드로 사용하는 NestJS 기반의 완전한 포인트 적립 및 사용 시스템입니다.\n\n## ✨ 새로운 기능들\n\n- 🏢 **회사 관리**: 포인트 충전/차감, 통계 제공\n- 💳 **결제 시스템**: 로고, 결제수단, 계좌, 카드, 토스 송금\n- 📊 **고급 통계**: 회사별, 사용자별 상세 분석\n- 🔢 **정확한 타입**: 모든 ID가 숫자형으로 변경\n\n## 🚀 사용 방법\n\n1. **Environment 설정**\n   - Variable: `baseUrl` = `http://localhost:3000`\n\n2. **서버 실행**\n   ```bash\n   cd the-movie-api\n   pnpm install\n   pnpm start:dev\n   ```\n\n3. **테스트 순서**\n   1. System → Health Check\n   2. Companies → Create Company\n   3. Users → Create User (company_id 포함)\n   4. Categories → Create Category\n   5. Stores → Create Store\n   6. Payment → Create Payment Method\n   7. Pay History → Earn Points\n\n## 📚 문서\n\n- **Swagger UI**: http://localhost:3000/api-docs\n- **데이터베이스**: Supabase PostgreSQL\n- **API 타입**: RESTful API\n\n## 📝 응답 형식\n\n모든 API는 일관된 응답 형식을 따릅니다:\n\n```json\n{\n  \"success\": true,\n  \"data\": { ... },\n  \"message\": \"성공 메시지\"\n}\n```\n\n## 🔧 주요 변경사항\n\n- ✅ 모든 ID 필드가 `number` 타입으로 변경\n- ✅ 회사 관리 시스템 추가\n- ✅ 완전한 결제 시스템 구현\n- ✅ 사용자에 `company_id` 필드 추가\n- ✅ 고급 통계 및 분석 기능\n    ",
+    "description": "\n# 🚀 포인트 적립/사용 시스템 API v2.0\n\nSupabase를 백엔드로 사용하는 NestJS 기반의 완전한 포인트 적립 및 사용 시스템입니다.\n\n## ✨ 새로운 기능들\n\n- 🏢 **회사 관리**: 포인트 충전/차감, 통계 제공\n- 💳 **결제 시스템**: 로고, 결제수단, 계좌, 카드, 토스 송금\n- 📊 **고급 통계**: 회사별, 사용자별 상세 분석\n- 🔢 **정확한 타입**: 실제 데이터 타입에 맞춘 ID 체계\n\n## 🚀 사용 방법\n\n1. **Environment 설정**\n   - Variable: `baseUrl` = `http://localhost:3000`\n\n2. **서버 실행**\n   ```bash\n   cd the-movie-api\n   pnpm install\n   pnpm start:dev\n   ```\n\n3. **테스트 순서**\n   1. System → Health Check\n   2. Companies → Create Company\n   3. Categories → Create Category\n   4. Users → Create User (company_id 포함)\n   5. Stores → Create Store\n   6. Payment → Create Logo\n   7. Payment → Create Payment Method\n   8. Pay History → Earn Points (method_id 필수)\n\n## 📚 문서\n\n- **Swagger UI**: http://localhost:3000/api-docs\n- **데이터베이스**: Supabase PostgreSQL\n- **API 타입**: RESTful API\n\n## 📝 응답 형식\n\n모든 API는 일관된 응답 형식을 따릅니다:\n\n```json\n{\n  \"success\": true,\n  \"data\": { ... },\n  \"message\": \"성공 메시지\"\n}\n```\n\n## 🔧 주요 변경사항\n\n- ✅ 정확한 데이터 타입 적용 (user_id/store_id: number, 기타 ID: string)\n- ✅ 회사 관리 시스템 추가\n- ✅ 완전한 결제 시스템 구현\n- ✅ 사용자에 `company_id` 필드 추가\n- ✅ 고급 통계 및 분석 기능\n    ",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -111,7 +111,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"스타벅스 코리아\",\n  \"business_number\": \"123-45-67890\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"phone\": \"02-1234-5678\",\n  \"email\": \"contact@starbucks.co.kr\"\n}"
+              "raw": "{\n  \"company_id\": \"COMP0001\",\n  \"point\": 1000000\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/companies",
@@ -138,7 +138,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"스타벅스 코리아\",\n  \"business_number\": \"123-45-67890\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"phone\": \"02-1234-5678\",\n  \"email\": \"contact@starbucks.co.kr\"\n}"
+                  "raw": "{\n  \"company_id\": \"COMP0001\",\n  \"point\": 1000000\n}"
                 }
               },
               "status": "Created",
@@ -151,7 +151,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": 1,\n    \"name\": \"스타벅스 코리아\",\n    \"business_number\": \"123-45-67890\",\n    \"address\": \"서울시 강남구 테헤란로 123\",\n    \"phone\": \"02-1234-5678\",\n    \"email\": \"contact@starbucks.co.kr\",\n    \"points\": 0,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"회사가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"point\": 1000000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"회사가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -189,7 +189,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"company_id\": 1,\n      \"name\": \"스타벅스 코리아\",\n      \"business_number\": \"123-45-67890\",\n      \"points\": 50000,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"company_id\": 2,\n      \"name\": \"이디야커피\",\n      \"business_number\": \"987-65-43210\",\n      \"points\": 30000,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"company_id\": \"COMP0001\",\n      \"point\": 50000,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"company_id\": \"COMP0002\",\n      \"point\": 30000,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -245,7 +245,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": 1,\n    \"previous_points\": 50000,\n    \"added_points\": 100000,\n    \"current_points\": 150000\n  },\n  \"message\": \"100000원이 충전되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"previous_point\": 50000,\n    \"added_point\": 100000,\n    \"current_point\": 150000\n  },\n  \"message\": \"100000원이 충전되었습니다.\"\n}"
             }
           ]
         },
@@ -283,7 +283,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": 1,\n    \"current_points\": 150000,\n    \"total_users\": 125,\n    \"total_stores\": 15,\n    \"monthly_transactions\": 2340,\n    \"total_points_distributed\": 500000\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"current_point\": 150000,\n    \"total_users\": 125,\n    \"total_stores\": 15,\n    \"monthly_transactions\": 2340,\n    \"total_points_distributed\": 500000\n  }\n}"
             }
           ]
         }
@@ -305,7 +305,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"홍길동\",\n  \"email\": \"hong@example.com\",\n  \"phone\": \"010-1234-5678\",\n  \"password\": \"securePassword123!\",\n  \"company_id\": 1\n}"
+              "raw": "{\n  \"company_id\": \"COMP0001\",\n  \"password\": \"securePassword123!\",\n  \"name\": \"홍길동\",\n  \"pw_number\": \"123456\",\n  \"pw_pattern\": \"1234\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users",
@@ -332,7 +332,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"홍길동\",\n  \"email\": \"hong@example.com\",\n  \"phone\": \"010-1234-5678\",\n  \"password\": \"securePassword123!\",\n  \"company_id\": 1\n}"
+                  "raw": "{\n  \"company_id\": \"COMP0001\",\n  \"password\": \"securePassword123!\",\n  \"name\": \"홍길동\",\n  \"pw_number\": \"123456\",\n  \"pw_pattern\": \"1234\"\n}"
                 }
               },
               "status": "Created",
@@ -345,7 +345,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"홍길동\",\n    \"email\": \"hong@example.com\",\n    \"phone\": \"010-1234-5678\",\n    \"company_id\": 1,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"사용자가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"사용자가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -383,7 +383,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"홍길동\",\n    \"email\": \"hong@example.com\",\n    \"phone\": \"010-1234-5678\",\n    \"company_id\": 1,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  }\n}"
             }
           ]
         },
@@ -439,7 +439,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"홍길동 (수정됨)\",\n    \"email\": \"hong.updated@example.com\",\n    \"phone\": \"010-9876-5432\",\n    \"company_id\": 1,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"사용자 정보가 성공적으로 업데이트되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동 (수정됨)\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"사용자 정보가 성공적으로 업데이트되었습니다.\"\n}"
             }
           ]
         }
@@ -461,7 +461,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"스타벅스 강남점\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"phone\": \"02-1234-5678\",\n  \"category_id\": 1\n}"
+              "raw": "{\n  \"name\": \"스타벅스 강남점\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"image\": \"https://example.com/store-image.jpg\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/stores",
@@ -488,7 +488,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"스타벅스 강남점\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"phone\": \"02-1234-5678\",\n  \"category_id\": 1\n}"
+                  "raw": "{\n  \"name\": \"스타벅스 강남점\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"image\": \"https://example.com/store-image.jpg\"\n}"
                 }
               },
               "status": "Created",
@@ -501,7 +501,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"store_id\": 1,\n    \"name\": \"스타벅스 강남점\",\n    \"address\": \"서울시 강남구 테헤란로 123\",\n    \"phone\": \"02-1234-5678\",\n    \"category_id\": 1,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"매장이 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"store_id\": 1,\n    \"name\": \"스타벅스 강남점\",\n    \"address\": \"서울시 강남구 테헤란로 123\",\n    \"image\": \"https://example.com/store-image.jpg\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"매장이 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -539,7 +539,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"store_id\": 1,\n      \"name\": \"스타벅스 강남점\",\n      \"address\": \"서울시 강남구 테헤란로 123\",\n      \"phone\": \"02-1234-5678\",\n      \"category_id\": 1,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"store_id\": 2,\n      \"name\": \"이디야커피 홍대점\",\n      \"address\": \"서울시 마포구 홍익로 456\",\n      \"phone\": \"02-9876-5432\",\n      \"category_id\": 1,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"store_id\": 1,\n      \"name\": \"스타벅스 강남점\",\n      \"address\": \"서울시 강남구 테헤란로 123\",\n      \"image\": \"https://example.com/store-image.jpg\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"store_id\": 2,\n      \"name\": \"이디야커피 홍대점\",\n      \"address\": \"서울시 마포구 홍익로 456\",\n      \"image\": \"https://example.com/store-image2.jpg\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -577,7 +577,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"menu_id\": 1,\n      \"name\": \"아메리카노\",\n      \"price\": 4500,\n      \"category_id\": 1,\n      \"store_id\": 1\n    },\n    {\n      \"menu_id\": 2,\n      \"name\": \"카페라떼\",\n      \"price\": 5000,\n      \"category_id\": 1,\n      \"store_id\": 1\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"menu_id\": \"MENU0001\",\n      \"name\": \"아메리카노\",\n      \"price\": 4500,\n      \"category_id\": \"CAT0001\",\n      \"store_id\": 1\n    },\n    {\n      \"menu_id\": \"MENU0002\",\n      \"name\": \"카페라떼\",\n      \"price\": 5000,\n      \"category_id\": \"CAT0001\",\n      \"store_id\": 1\n    }\n  ]\n}"
             }
           ]
         }
@@ -602,7 +602,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"스타벅스 로고\",\n  \"image_url\": \"https://logo.starbucks.co.kr/logo.png\",\n  \"company_id\": 1\n}"
+                  "raw": "{\n  \"logo_id\": \"LOGO0001\",\n  \"image\": \"https://logo.starbucks.co.kr/logo.png\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/logos",
@@ -642,7 +642,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"logo_id\": 1,\n    \"name\": \"스타벅스 로고\",\n    \"image_url\": \"https://logo.starbucks.co.kr/logo.png\",\n    \"company_id\": 1,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"로고가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"logo_id\": \"LOGO0001\",\n    \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"로고가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -680,7 +680,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"logo_id\": 1,\n      \"name\": \"스타벅스 로고\",\n      \"image_url\": \"https://logo.starbucks.co.kr/logo.png\",\n      \"company_id\": 1,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"logo_id\": \"LOGO0001\",\n      \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -701,7 +701,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"신한카드\",\n  \"type\": \"CARD\",\n  \"description\": \"신한카드 결제\"\n}"
+                  "raw": "{\n  \"method_id\": \"METHOD0001\",\n  \"logo_id\": \"LOGO0001\",\n  \"type\": \"CARD\",\n  \"name\": \"신한카드\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/payment-methods",
@@ -741,7 +741,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"payment_method_id\": 1,\n    \"name\": \"신한카드\",\n    \"type\": \"CARD\",\n    \"description\": \"신한카드 결제\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"결제수단이 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"method_id\": \"METHOD0001\",\n    \"logo_id\": \"LOGO0001\",\n    \"type\": \"CARD\",\n    \"name\": \"신한카드\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"결제수단이 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -779,7 +779,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"payment_method_id\": 1,\n      \"name\": \"신한카드\",\n      \"type\": \"CARD\",\n      \"description\": \"신한카드 결제\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"payment_method_id\": 2,\n      \"name\": \"국민카드\",\n      \"type\": \"CARD\",\n      \"description\": \"국민카드 결제\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"method_id\": \"METHOD0001\",\n      \"logo_id\": \"LOGO0001\",\n      \"type\": \"CARD\",\n      \"name\": \"신한카드\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"method_id\": \"METHOD0002\",\n      \"logo_id\": \"LOGO0002\",\n      \"type\": \"CARD\",\n      \"name\": \"국민카드\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -800,7 +800,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"user_id\": 1,\n  \"account_number\": \"123-456-789012\",\n  \"bank_name\": \"신한은행\",\n  \"account_holder\": \"홍길동\"\n}"
+                  "raw": "{\n  \"account_id\": \"ACC0001\",\n  \"user_id\": 1,\n  \"company_id\": \"COMP0001\",\n  \"number\": \"123-456-789012\",\n  \"logo_id\": \"LOGO0001\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/accounts",
@@ -840,7 +840,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"account_id\": 1,\n    \"user_id\": 1,\n    \"account_number\": \"123-456-789012\",\n    \"bank_name\": \"신한은행\",\n    \"account_holder\": \"홍길동\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"계좌가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"account_id\": \"ACC0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"123-456-789012\",\n    \"logo_id\": \"LOGO0001\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"계좌가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -878,7 +878,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"account_id\": 1,\n      \"user_id\": 1,\n      \"account_number\": \"123-456-789012\",\n      \"bank_name\": \"신한은행\",\n      \"account_holder\": \"홍길동\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"account_id\": \"ACC0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"123-456-789012\",\n      \"logo_id\": \"LOGO0001\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -899,7 +899,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"user_id\": 1,\n  \"card_number\": \"1234-5678-9012-3456\",\n  \"card_holder\": \"홍길동\",\n  \"expiry_date\": \"12/28\",\n  \"card_company\": \"신한카드\"\n}"
+                  "raw": "{\n  \"card_id\": \"CARD0001\",\n  \"user_id\": 1,\n  \"company_id\": \"COMP0001\",\n  \"number\": \"1234-5678-9012-3456\"\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/cards",
@@ -939,7 +939,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"card_id\": 1,\n    \"user_id\": 1,\n    \"card_number\": \"****-****-****-3456\",\n    \"card_holder\": \"홍길동\",\n    \"expiry_date\": \"12/28\",\n    \"card_company\": \"신한카드\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카드가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"card_id\": \"CARD0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"****-****-****-3456\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카드가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -977,7 +977,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"card_id\": 1,\n      \"user_id\": 1,\n      \"card_number\": \"****-****-****-3456\",\n      \"card_holder\": \"홍길동\",\n      \"expiry_date\": \"12/28\",\n      \"card_company\": \"신한카드\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"card_id\": \"CARD0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"****-****-****-3456\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -998,7 +998,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"sender_id\": 1,\n  \"receiver_id\": 2,\n  \"amount\": 10000,\n  \"message\": \"커피 값 송금\",\n  \"company_id\": 1\n}"
+                  "raw": "{\n  \"user_id\": 1,\n  \"company_id\": \"COMP0001\",\n  \"toss_amount\": 10000\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/toss",
@@ -1038,7 +1038,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"toss_id\": 1,\n    \"sender_id\": 1,\n    \"receiver_id\": 2,\n    \"amount\": 10000,\n    \"message\": \"커피 값 송금\",\n    \"company_id\": 1,\n    \"status\": \"completed\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"토스 송금이 성공적으로 완료되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"toss_amount\": 10000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"토스 송금이 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -1076,7 +1076,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": 1,\n    \"total_transfers\": 156,\n    \"total_amount\": 2340000,\n    \"average_amount\": 15000,\n    \"monthly_transfers\": 45,\n    \"monthly_amount\": 675000\n  }\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"total_transfers\": 156,\n    \"total_amount\": 2340000,\n    \"average_amount\": 15000,\n    \"monthly_transfers\": 45,\n    \"monthly_amount\": 675000\n  }\n}"
                 }
               ]
             }
@@ -1100,7 +1100,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"amount\": 1000,\n  \"description\": \"아메리카노 구매 적립\"\n}"
+              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"method_id\": \"METHOD0001\",\n  \"amount\": 1000\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/pay-history/earn-points",
@@ -1140,7 +1140,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"amount\": 1000,\n    \"description\": \"아메리카노 구매 적립\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"1000원이 적립되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": 1000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"1000원이 적립되었습니다.\"\n}"
             }
           ]
         },
@@ -1156,7 +1156,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"amount\": 500,\n  \"description\": \"포인트 결제\"\n}"
+              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"method_id\": \"METHOD0001\",\n  \"amount\": 500\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/pay-history/use-points",
@@ -1196,7 +1196,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 2,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"amount\": -500,\n    \"description\": \"포인트 결제\",\n    \"created_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"500원이 사용되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 2,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": -500,\n    \"created_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"500원이 사용되었습니다.\"\n}"
             }
           ]
         },
@@ -1272,7 +1272,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"amount\": 1000,\n      \"description\": \"아메리카노 구매 적립\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"id\": 2,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"amount\": -500,\n      \"description\": \"포인트 결제\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": 1000,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"id\": 2,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": -500,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -1356,7 +1356,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"커피전문점\"\n}"
+              "raw": "{\n  \"category_id\": \"CAT0001\",\n  \"name\": \"커피전문점\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/categories",
@@ -1383,7 +1383,7 @@
                 },
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"커피전문점\"\n}"
+                  "raw": "{\n  \"category_id\": \"CAT0001\",\n  \"name\": \"커피전문점\"\n}"
                 }
               },
               "status": "Created",
@@ -1396,7 +1396,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"category_id\": 1,\n    \"name\": \"커피전문점\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카테고리가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"category_id\": \"CAT0001\",\n    \"name\": \"커피전문점\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카테고리가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -1434,7 +1434,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"category_id\": 1,\n      \"name\": \"커피전문점\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"category_id\": 2,\n      \"name\": \"베이커리\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"category_id\": \"CAT0001\",\n      \"name\": \"커피전문점\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"category_id\": \"CAT0002\",\n      \"name\": \"베이커리\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         }
