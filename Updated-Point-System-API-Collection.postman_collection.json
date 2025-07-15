@@ -51,7 +51,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"message\": \"API is running successfully\",\n  \"timestamp\": \"2024-12-19T15:30:00.000Z\",\n  \"version\": \"2.0.0\"\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"API is running successfully\",\n  \"timestamp\": \"2025-01-15T09:30:00.000Z\",\n  \"version\": \"2.0.0\"\n}"
             }
           ]
         },
@@ -89,7 +89,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"message\": \"✅ Supabase 연결이 정상입니다.\",\n  \"timestamp\": \"2024-12-19T15:30:00.000Z\",\n  \"database\": \"Supabase PostgreSQL\",\n  \"status\": \"connected\"\n}"
+              "body": "{\n  \"success\": true,\n  \"message\": \"✅ Supabase 연결이 정상입니다.\",\n  \"timestamp\": \"2025-01-15T09:30:00.000Z\",\n  \"database\": \"Supabase PostgreSQL\",\n  \"status\": \"connected\"\n}"
             }
           ]
         }
@@ -151,7 +151,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"point\": 1000000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"회사가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"company_id\": \"COMP0001\",\n    \"point\": 1000000,\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"회사가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -189,7 +189,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"company_id\": \"COMP0001\",\n      \"point\": 50000,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"company_id\": \"COMP0002\",\n      \"point\": 30000,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"company_id\": \"COMP0001\",\n      \"point\": 50000,\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    },\n    {\n      \"company_id\": \"COMP0002\",\n      \"point\": 30000,\n      \"created_at\": \"2025-01-16T11:00:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -345,7 +345,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"사용자가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"사용자가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -383,7 +383,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  }\n}"
             }
           ]
         },
@@ -439,7 +439,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동 (수정됨)\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"사용자 정보가 성공적으로 업데이트되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"name\": \"홍길동 (수정됨)\",\n    \"pw_number\": \"123456\",\n    \"pw_pattern\": \"1234\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-16T11:00:00.000Z\"\n  },\n  \"message\": \"사용자 정보가 성공적으로 업데이트되었습니다.\"\n}"
             }
           ]
         }
@@ -501,7 +501,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"store_id\": 1,\n    \"name\": \"스타벅스 강남점\",\n    \"address\": \"서울시 강남구 테헤란로 123\",\n    \"image\": \"https://example.com/store-image.jpg\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"매장이 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"store_id\": 1,\n    \"name\": \"스타벅스 강남점\",\n    \"address\": \"서울시 강남구 테헤란로 123\",\n    \"image\": \"https://example.com/store-image.jpg\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"매장이 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -539,7 +539,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"store_id\": 1,\n      \"name\": \"스타벅스 강남점\",\n      \"address\": \"서울시 강남구 테헤란로 123\",\n      \"image\": \"https://example.com/store-image.jpg\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"store_id\": 2,\n      \"name\": \"이디야커피 홍대점\",\n      \"address\": \"서울시 마포구 홍익로 456\",\n      \"image\": \"https://example.com/store-image2.jpg\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"store_id\": 1,\n      \"name\": \"스타벅스 강남점\",\n      \"address\": \"서울시 강남구 테헤란로 123\",\n      \"image\": \"https://example.com/store-image.jpg\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    },\n    {\n      \"store_id\": 2,\n      \"name\": \"이디야커피 홍대점\",\n      \"address\": \"서울시 마포구 홍익로 456\",\n      \"image\": \"https://example.com/store-image2.jpg\",\n      \"created_at\": \"2025-01-16T11:00:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -642,7 +642,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"logo_id\": \"LOGO0001\",\n    \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"로고가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"logo_id\": \"LOGO0001\",\n    \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"로고가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -680,7 +680,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"logo_id\": \"LOGO0001\",\n      \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"logo_id\": \"LOGO0001\",\n      \"image\": \"https://logo.starbucks.co.kr/logo.png\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -741,7 +741,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"method_id\": \"METHOD0001\",\n    \"logo_id\": \"LOGO0001\",\n    \"type\": \"CARD\",\n    \"name\": \"신한카드\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"결제수단이 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"method_id\": \"METHOD0001\",\n    \"logo_id\": \"LOGO0001\",\n    \"type\": \"CARD\",\n    \"name\": \"신한카드\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"결제수단이 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -779,7 +779,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"method_id\": \"METHOD0001\",\n      \"logo_id\": \"LOGO0001\",\n      \"type\": \"CARD\",\n      \"name\": \"신한카드\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"method_id\": \"METHOD0002\",\n      \"logo_id\": \"LOGO0002\",\n      \"type\": \"CARD\",\n      \"name\": \"국민카드\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"method_id\": \"METHOD0001\",\n      \"logo_id\": \"LOGO0001\",\n      \"type\": \"CARD\",\n      \"name\": \"신한카드\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    },\n    {\n      \"method_id\": \"METHOD0002\",\n      \"logo_id\": \"LOGO0002\",\n      \"type\": \"CARD\",\n      \"name\": \"국민카드\",\n      \"created_at\": \"2025-01-16T11:00:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -840,7 +840,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"account_id\": \"ACC0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"123-456-789012\",\n    \"logo_id\": \"LOGO0001\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"계좌가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"account_id\": \"ACC0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"123-456-789012\",\n    \"logo_id\": \"LOGO0001\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"계좌가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -878,7 +878,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"account_id\": \"ACC0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"123-456-789012\",\n      \"logo_id\": \"LOGO0001\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"account_id\": \"ACC0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"123-456-789012\",\n      \"logo_id\": \"LOGO0001\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -926,7 +926,7 @@
                     },
                     "body": {
                       "mode": "raw",
-                      "raw": "{\n  \"user_id\": 1,\n  \"card_number\": \"1234-5678-9012-3456\",\n  \"card_holder\": \"홍길동\",\n  \"expiry_date\": \"12/28\",\n  \"card_company\": \"신한카드\"\n}"
+                      "raw": "{\n  \"user_id\": 1,\n  \"card_number\": \"1234-5678-9012-3456\",\n  \"card_holder\": \"홍길동\",\n  \"expiry_date\": \"01/29\",\n  \"card_company\": \"신한카드\"\n}"
                     }
                   },
                   "status": "Created",
@@ -939,7 +939,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"card_id\": \"CARD0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"****-****-****-3456\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카드가 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"card_id\": \"CARD0001\",\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"number\": \"****-****-****-3456\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"카드가 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -977,7 +977,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"card_id\": \"CARD0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"****-****-****-3456\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    }\n  ]\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"card_id\": \"CARD0001\",\n      \"user_id\": 1,\n      \"company_id\": \"COMP0001\",\n      \"number\": \"****-****-****-3456\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    }\n  ]\n}"
                 }
               ]
             }
@@ -1038,7 +1038,7 @@
                     }
                   ],
                   "cookie": [],
-                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"toss_amount\": 10000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\",\n    \"updated_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"토스 송금이 성공적으로 생성되었습니다.\"\n}"
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"company_id\": \"COMP0001\",\n    \"toss_amount\": 10000,\n    \"created_at\": \"2025-01-15T09:30:00.000Z\",\n    \"updated_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"토스 송금이 성공적으로 생성되었습니다.\"\n}"
                 }
               ]
             },
@@ -1140,7 +1140,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": 1000,\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"1000원이 적립되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": 1000,\n    \"created_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"1000원이 적립되었습니다.\"\n}"
             }
           ]
         },
@@ -1196,7 +1196,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 2,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": -500,\n    \"created_at\": \"2024-12-19T15:35:00.000Z\"\n  },\n  \"message\": \"500원이 사용되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 2,\n    \"user_id\": 1,\n    \"store_id\": 1,\n    \"method_id\": \"METHOD0001\",\n    \"amount\": -500,\n    \"created_at\": \"2025-01-16T11:00:00.000Z\"\n  },\n  \"message\": \"500원이 사용되었습니다.\"\n}"
             }
           ]
         },
@@ -1272,7 +1272,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": 1000,\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"id\": 2,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": -500,\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": 1000,\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    },\n    {\n      \"id\": 2,\n      \"user_id\": 1,\n      \"store_id\": 1,\n      \"method_id\": \"METHOD0001\",\n      \"amount\": -500,\n      \"created_at\": \"2025-01-16T11:00:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         },
@@ -1282,18 +1282,18 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/pay-history/user/1/monthly-stats?year=2024&month=12",
+              "raw": "{{baseUrl}}/pay-history/user/1/monthly-stats?year=2025&month=1",
               "host": ["{{baseUrl}}"],
               "path": ["pay-history", "user", "1", "monthly-stats"],
               "query": [
                 {
                   "key": "year",
-                  "value": "2024",
+                  "value": "2025",
                   "description": "연도"
                 },
                 {
                   "key": "month",
-                  "value": "12",
+                  "value": "1",
                   "description": "월 (1-12)"
                 }
               ]
@@ -1307,18 +1307,18 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/pay-history/user/1/monthly-stats?year=2024&month=12",
+                  "raw": "{{baseUrl}}/pay-history/user/1/monthly-stats?year=2025&month=1",
                   "host": ["{{baseUrl}}"],
                   "path": ["pay-history", "user", "1", "monthly-stats"],
                   "query": [
                     {
                       "key": "year",
-                      "value": "2024",
+                      "value": "2025",
                       "description": "연도"
                     },
                     {
                       "key": "month",
-                      "value": "12",
+                      "value": "1",
                       "description": "월 (1-12)"
                     }
                   ]
@@ -1334,7 +1334,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"year\": 2024,\n    \"month\": 12,\n    \"totalEarned\": 5000,\n    \"totalUsed\": 2000,\n    \"netAmount\": 3000,\n    \"transactionCount\": 8\n  }\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"year\": 2025,\n    \"month\": 1,\n    \"totalEarned\": 5000,\n    \"totalUsed\": 2000,\n    \"netAmount\": 3000,\n    \"transactionCount\": 8\n  }\n}"
             }
           ]
         }
@@ -1396,7 +1396,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"category_id\": \"CAT0001\",\n    \"name\": \"커피전문점\",\n    \"created_at\": \"2024-12-19T15:30:00.000Z\"\n  },\n  \"message\": \"카테고리가 성공적으로 생성되었습니다.\"\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"category_id\": \"CAT0001\",\n    \"name\": \"커피전문점\",\n    \"created_at\": \"2025-01-15T09:30:00.000Z\"\n  },\n  \"message\": \"카테고리가 성공적으로 생성되었습니다.\"\n}"
             }
           ]
         },
@@ -1434,7 +1434,7 @@
                 }
               ],
               "cookie": [],
-              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"category_id\": \"CAT0001\",\n      \"name\": \"커피전문점\",\n      \"created_at\": \"2024-12-19T15:30:00.000Z\"\n    },\n    {\n      \"category_id\": \"CAT0002\",\n      \"name\": \"베이커리\",\n      \"created_at\": \"2024-12-19T15:35:00.000Z\"\n    }\n  ]\n}"
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"category_id\": \"CAT0001\",\n      \"name\": \"커피전문점\",\n      \"created_at\": \"2025-01-15T09:30:00.000Z\"\n    },\n    {\n      \"category_id\": \"CAT0002\",\n      \"name\": \"베이커리\",\n      \"created_at\": \"2025-01-16T11:00:00.000Z\"\n    }\n  ]\n}"
             }
           ]
         }
