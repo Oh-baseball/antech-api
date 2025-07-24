@@ -85,7 +85,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-supabase-anon-key
 
 # 서버 설정
-PORT=3000
+PORT=8000
 NODE_ENV=development
 ```
 
@@ -148,7 +148,7 @@ pnpm postman:generate-with-responses
 1. **Postman 앱 열기**
 2. **Import** 버튼 클릭
 3. `Point-System-API-Collection-with-Responses.postman_collection.json` 파일 선택
-4. **Environment 설정**: `baseUrl` = `http://localhost:3000`
+4. **Environment 설정**: `baseUrl` = `http://localhost:8000`
 
 ### 단위 테스트
 
