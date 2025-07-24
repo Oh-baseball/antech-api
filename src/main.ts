@@ -37,7 +37,11 @@ async function bootstrap() {
     .addTag('stores', '매장 관리')
     .addTag('categories', '카테고리 관리')
     .addTag('pay-history', '포인트 관리')
-    .addServer('http://localhost:3000', '개발 서버')
+    .addServer(
+      'http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com',
+      '프로덕션 서버',
+    )
+    .addServer('http://localhost:8000', '개발 서버') // 포트도 8000으로 수정
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
