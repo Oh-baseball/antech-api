@@ -36,6 +36,6 @@ COPY --from=builder --chown=nestjs:nodejs /app/package.json ./
 
 USER nestjs
 
-EXPOSE 3000
+EXPOSE 8000
 
 CMD ["node", "dist/main"]
