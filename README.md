@@ -102,20 +102,23 @@ pnpm start:prod
 
 ### 5. API 문서 확인
 
-서버가 실행되면 다음 URL에서 API를 확인할 수 있습니다:
+#### 개발 환경
 
-- **Swagger UI**: http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com/api-docs
-- **API 상태**: http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com/health
-- **데이터베이스 연결**: http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com/health/database
+- **Swagger UI**: http://localhost:8000/api-docs
+- **API 상태**: http://localhost:8000/health
+- **데이터베이스 연결**: http://localhost:8000/health/database
+
+#### 프로덕션 환경
+
+- 배포된 서버 주소는 별도로 공유됩니다
+- 또는 도메인 연결 후 업데이트 예정
 
 ## 📚 API 문서
-
-자세한 API 문서는 다음에서 확인하세요:
 
 - **🚀 [POSTMAN_QUICK_START.md](./POSTMAN_QUICK_START.md)** - Postman 빠른 시작 가이드
 - **📖 [API_DOCS.md](./API_DOCS.md)** - 상세한 API 사용 가이드
 - **📮 [POSTMAN_GUIDE.md](./POSTMAN_GUIDE.md)** - Postman 테스트 가이드
-- **🌐 [Swagger UI](http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com/api-docs)** - 인터랙티브 API 문서
+- **🌐 Swagger UI** - 서버 실행 후 `/api-docs` 경로에서 확인
 
 ### 주요 엔드포인트
 
