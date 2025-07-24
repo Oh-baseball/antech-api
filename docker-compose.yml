@@ -4,12 +4,18 @@ services:
     container_name: nestjs-app
     networks:
       - app-network
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - PORT=8000
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
 
   nginx:
     image: nginx:alpine
     container_name: nginx-proxy
+    restart: unless-stopped
     ports:
       - '80:80'
     volumes:

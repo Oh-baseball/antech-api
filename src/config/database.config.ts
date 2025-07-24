@@ -7,29 +7,33 @@ export class DatabaseConfig {
   private supabase;
 
   constructor(private configService: ConfigService) {
-    const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
-    const supabaseKey = this.configService.get<string>('SUPABASE_ANON_KEY');
-
-    if (!supabaseUrl || !supabaseKey) {
-      console.error('❌ Supabase 환경변수가 설정되지 않았습니다!');
-      console.error('다음 환경변수들을 .env 파일에 추가해주세요:');
-      console.error('- SUPABASE_URL=https://your-project-ref.supabase.co');
-      console.error('- SUPABASE_ANON_KEY=your_anon_key_here');
-      throw new Error(
-        'Supabase URL과 Anon Key가 환경변수에 설정되지 않았습니다. ' +
-          '.env 파일을 확인해주세요.',
-      );
-    }
-
-    this.supabase = createClient(supabaseUrl, supabaseKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    });
+    // 환경변수 검증을 getClient() 호출 시점으로 지연
   }
 
   getClient() {
+    if (!this.supabase) {
+      const supabaseUrl = this.configService.get<string>('SUPABASE_URL');
+      const supabaseKey = this.configService.get<string>('SUPABASE_ANON_KEY');
+
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('❌ Supabase 환경변수가 설정되지 않았습니다!');
+        console.error('다음 환경변수들을 .env 파일에 추가해주세요:');
+        console.error('- SUPABASE_URL=https://your-project-ref.supabase.co');
+        console.error('- SUPABASE_ANON_KEY=your_anon_key_here');
+        throw new Error(
+          'Supabase URL과 Anon Key가 환경변수에 설정되지 않았습니다. ' +
+            '.env 파일을 확인해주세요.',
+        );
+      }
+
+      this.supabase = createClient(supabaseUrl, supabaseKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      });
+    }
+
     return this.supabase;
   }
 
@@ -38,8 +42,8 @@ export class DatabaseConfig {
     try {
       console.log('🔍 Supabase 연결을 테스트 중...');
 
-      // 단순한 쿼리로 연결 테스트
-      const { data, error } = await this.supabase
+      const client = this.getClient();
+      const { data, error } = await client
         .from('user')
         .select('count(*)')
         .limit(1);
