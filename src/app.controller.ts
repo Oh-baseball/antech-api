@@ -3,7 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AppService } from './app.service';
 import { DatabaseConfig } from './config/database.config';
 
-@ApiTags('system')
+@ApiTags('🏠 system')
 @Controller()
 export class AppController {
   constructor(

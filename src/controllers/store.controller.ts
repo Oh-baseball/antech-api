@@ -29,7 +29,7 @@ import {
 } from '../dto/store.dto';
 import { ResponseDto } from '../dto/response.dto';
 
-@ApiTags('stores')
+@ApiTags('🏪 stores')
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}

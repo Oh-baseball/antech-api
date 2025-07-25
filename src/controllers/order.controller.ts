@@ -16,7 +16,7 @@ import { CreateOrderDto } from '../dto/store.dto';
 import { CreatePaymentDto } from '../entities/store.entity';
 import { ResponseDto } from '../dto/response.dto';
 
-@ApiTags('orders')
+@ApiTags('📦 orders', '💰 payments', '🎯 points')
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
