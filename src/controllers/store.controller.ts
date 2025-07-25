@@ -1,3 +1,5 @@
+// 간편 결제 시스템 - 매장 컨트롤러
+
 import {
   Controller,
   Get,
@@ -7,8 +9,6 @@ import {
   Body,
   Param,
   Query,
-  HttpCode,
-  HttpStatus,
   ParseIntPipe,
 } from '@nestjs/common';
 import {
@@ -23,38 +23,36 @@ import {
   CreateStoreDto,
   UpdateStoreDto,
   CreateCategoryDto,
+  UpdateCategoryDto,
+  CreateMenuDto,
+  UpdateMenuDto,
 } from '../dto/store.dto';
-import {
-  StoreResponseDto,
-  StoresResponseDto,
-  CategoriesResponseDto,
-  CategoryResponseDto,
-  ErrorResponseDto,
-} from '../dto/response.dto';
+import { ResponseDto } from '../dto/response.dto';
 
 @ApiTags('stores')
 @Controller('stores')
 export class StoreController {
   constructor(private readonly storeService: StoreService) {}
 
+  /* -------------------------------------------------------------
+     매장 관리
+  ------------------------------------------------------------- */
+
   @Post()
-  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: '매장 생성',
     description: '새로운 매장을 생성합니다.',
   })
   @ApiResponse({
     status: 201,
-    description: '매장이 성공적으로 생성되었습니다.',
-    type: StoreResponseDto,
+    description: '매장 생성 성공',
+    type: ResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: '잘못된 요청 데이터입니다.',
-    type: ErrorResponseDto,
-  })
-  async createStore(@Body() createStoreDto: CreateStoreDto) {
+  async createStore(
+    @Body() createStoreDto: CreateStoreDto,
+  ): Promise<ResponseDto> {
     const store = await this.storeService.createStore(createStoreDto);
+
     return {
       success: true,
       data: store,
@@ -67,228 +65,390 @@ export class StoreController {
     summary: '매장 목록 조회',
     description: '모든 매장 목록을 조회합니다.',
   })
+  @ApiQuery({ name: 'search', required: false, description: '매장명 검색' })
   @ApiResponse({
     status: 200,
     description: '매장 목록 조회 성공',
-    type: StoresResponseDto,
+    type: ResponseDto,
   })
-  async getAllStores() {
-    const stores = await this.storeService.findAllStores();
-    return {
-      success: true,
-      data: stores,
-    };
-  }
+  async findAllStores(@Query('search') search?: string): Promise<ResponseDto> {
+    let stores;
 
-  @Get('search')
-  @ApiOperation({
-    summary: '매장 검색',
-    description: '키워드로 매장을 검색합니다.',
-  })
-  @ApiQuery({
-    name: 'keyword',
-    description: '검색 키워드',
-    example: '스타벅스',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '매장 검색 성공',
-    type: StoresResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: '검색 키워드를 입력해주세요.',
-    type: ErrorResponseDto,
-  })
-  async searchStores(@Query('keyword') keyword: string) {
-    if (!keyword) {
-      return {
-        success: false,
-        message: '검색 키워드를 입력해주세요.',
-      };
+    if (search) {
+      stores = await this.storeService.searchStoresByName(search);
+    } else {
+      stores = await this.storeService.findAllStores();
     }
 
-    const stores = await this.storeService.searchStores(keyword);
     return {
       success: true,
       data: stores,
-      message: `'${keyword}'에 대한 검색 결과입니다.`,
+      message: '매장 목록을 성공적으로 조회했습니다.',
     };
   }
 
-  @Get(':storeId')
+  @Get(':id')
   @ApiOperation({
-    summary: '매장 상세 조회',
-    description: '매장 ID로 상세 정보를 조회합니다.',
+    summary: '매장 정보 조회',
+    description: '특정 매장의 정보를 조회합니다.',
   })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
-  @ApiResponse({ status: 200, description: '매장 상세 정보 조회 성공' })
-  @ApiResponse({ status: 404, description: '매장을 찾을 수 없습니다.' })
-  async getStore(@Param('storeId', ParseIntPipe) storeId: number) {
+  @ApiParam({ name: 'id', description: '매장 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '매장 정보 조회 성공',
+    type: ResponseDto,
+  })
+  async findStoreById(
+    @Param('id', ParseIntPipe) storeId: number,
+  ): Promise<ResponseDto> {
     const store = await this.storeService.findStoreById(storeId);
+
     return {
       success: true,
       data: store,
+      message: '매장 정보를 성공적으로 조회했습니다.',
     };
   }
 
-  @Put(':storeId')
+  @Put(':id')
   @ApiOperation({
     summary: '매장 정보 수정',
     description: '매장 정보를 수정합니다.',
   })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
+  @ApiParam({ name: 'id', description: '매장 ID' })
   @ApiResponse({
     status: 200,
-    description: '매장 정보가 성공적으로 수정되었습니다.',
+    description: '매장 정보 수정 성공',
+    type: ResponseDto,
   })
-  @ApiResponse({ status: 404, description: '매장을 찾을 수 없습니다.' })
-  @ApiResponse({ status: 400, description: '잘못된 요청 데이터입니다.' })
   async updateStore(
-    @Param('storeId', ParseIntPipe) storeId: number,
+    @Param('id', ParseIntPipe) storeId: number,
     @Body() updateStoreDto: UpdateStoreDto,
-  ) {
+  ): Promise<ResponseDto> {
     const store = await this.storeService.updateStore(storeId, updateStoreDto);
+
     return {
       success: true,
       data: store,
-      message: '매장 정보가 성공적으로 업데이트되었습니다.',
+      message: '매장 정보가 성공적으로 수정되었습니다.',
     };
   }
 
-  @Delete(':storeId')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
   @ApiOperation({ summary: '매장 삭제', description: '매장을 삭제합니다.' })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
+  @ApiParam({ name: 'id', description: '매장 ID' })
   @ApiResponse({
-    status: 204,
-    description: '매장이 성공적으로 삭제되었습니다.',
+    status: 200,
+    description: '매장 삭제 성공',
+    type: ResponseDto,
   })
-  @ApiResponse({ status: 404, description: '매장을 찾을 수 없습니다.' })
-  async deleteStore(@Param('storeId', ParseIntPipe) storeId: number) {
+  async deleteStore(
+    @Param('id', ParseIntPipe) storeId: number,
+  ): Promise<ResponseDto> {
     await this.storeService.deleteStore(storeId);
+
     return {
       success: true,
+      data: null,
       message: '매장이 성공적으로 삭제되었습니다.',
     };
   }
 
-  @Get(':storeId/menus')
+  /* -------------------------------------------------------------
+     매장 메뉴 관리
+  ------------------------------------------------------------- */
+
+  @Get(':id/menus')
   @ApiOperation({
-    summary: '매장 메뉴 조회',
-    description: '매장의 모든 메뉴를 조회합니다.',
+    summary: '매장별 메뉴 조회',
+    description: '특정 매장의 모든 메뉴를 조회합니다.',
   })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
-  @ApiResponse({ status: 200, description: '매장 메뉴 조회 성공' })
-  async getStoreMenus(@Param('storeId', ParseIntPipe) storeId: number) {
-    const menus = await this.storeService.getStoreMenus(storeId);
+  @ApiParam({ name: 'id', description: '매장 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '매장 메뉴 조회 성공',
+    type: ResponseDto,
+  })
+  async findMenusByStore(
+    @Param('id', ParseIntPipe) storeId: number,
+  ): Promise<ResponseDto> {
+    const menus = await this.storeService.findMenusByStore(storeId);
+
     return {
       success: true,
       data: menus,
+      message: '매장 메뉴를 성공적으로 조회했습니다.',
     };
   }
 
-  @Get(':storeId/menus/category/:categoryId')
-  @ApiOperation({
-    summary: '카테고리별 메뉴 조회',
-    description: '특정 카테고리의 메뉴를 조회합니다.',
-  })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
-  @ApiParam({
-    name: 'categoryId',
-    description: '카테고리 ID',
-    example: 'CAT0001',
-  })
-  @ApiResponse({ status: 200, description: '카테고리별 메뉴 조회 성공' })
-  async getMenusByCategory(
-    @Param('storeId', ParseIntPipe) storeId: number,
-    @Param('categoryId') categoryId: string,
-  ) {
-    const menus = await this.storeService.getMenusByCategory(
-      storeId,
-      categoryId,
-    );
-    return {
-      success: true,
-      data: menus,
-    };
-  }
+  /* -------------------------------------------------------------
+     카테고리 관리
+  ------------------------------------------------------------- */
 
-  @Get(':storeId/stats')
-  @ApiOperation({
-    summary: '매장 통계 조회',
-    description: '매장의 메뉴 수, 결제 내역 수 등 통계를 조회합니다.',
-  })
-  @ApiParam({ name: 'storeId', description: '매장 ID (숫자)', example: 1 })
-  @ApiResponse({ status: 200, description: '매장 통계 조회 성공' })
-  async getStoreStats(@Param('storeId', ParseIntPipe) storeId: number) {
-    const stats = await this.storeService.getStoreStats(storeId);
-    return {
-      success: true,
-      data: stats,
-    };
-  }
-}
-
-@ApiTags('categories')
-@Controller('categories')
-export class CategoryController {
-  constructor(private readonly storeService: StoreService) {}
-
-  @Get()
-  @ApiOperation({
-    summary: '카테고리 목록 조회',
-    description: '모든 카테고리 목록을 조회합니다.',
-  })
-  @ApiResponse({ status: 200, description: '카테고리 목록 조회 성공' })
-  async getAllCategories() {
-    const categories = await this.storeService.getAllCategories();
-    return {
-      success: true,
-      data: categories,
-    };
-  }
-
-  @Get(':categoryId')
-  @ApiOperation({
-    summary: '카테고리 조회',
-    description: '카테고리 ID로 카테고리 정보를 조회합니다.',
-  })
-  @ApiParam({
-    name: 'categoryId',
-    description: '카테고리 ID',
-    example: 'CAT0001',
-  })
-  @ApiResponse({ status: 200, description: '카테고리 조회 성공' })
-  @ApiResponse({ status: 404, description: '카테고리를 찾을 수 없습니다.' })
-  async getCategory(@Param('categoryId') categoryId: string) {
-    const category = await this.storeService.getCategoryById(categoryId);
-    return {
-      success: true,
-      data: category,
-    };
-  }
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
+  @Post('categories')
   @ApiOperation({
     summary: '카테고리 생성',
     description: '새로운 카테고리를 생성합니다.',
   })
   @ApiResponse({
     status: 201,
-    description: '카테고리가 성공적으로 생성되었습니다.',
+    description: '카테고리 생성 성공',
+    type: ResponseDto,
   })
-  @ApiResponse({ status: 400, description: '카테고리 정보를 입력해주세요.' })
-  async createCategory(@Body() createCategoryDto: CreateCategoryDto) {
-    const category = await this.storeService.createCategory(
-      createCategoryDto.category_id,
-      createCategoryDto.name,
-    );
+  async createCategory(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<ResponseDto> {
+    const category = await this.storeService.createCategory(createCategoryDto);
+
     return {
       success: true,
       data: category,
       message: '카테고리가 성공적으로 생성되었습니다.',
+    };
+  }
+
+  @Get('categories')
+  @ApiOperation({
+    summary: '카테고리 목록 조회',
+    description: '모든 카테고리 목록을 조회합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '카테고리 목록 조회 성공',
+    type: ResponseDto,
+  })
+  async findAllCategories(): Promise<ResponseDto> {
+    const categories = await this.storeService.findAllCategories();
+
+    return {
+      success: true,
+      data: categories,
+      message: '카테고리 목록을 성공적으로 조회했습니다.',
+    };
+  }
+
+  @Get('categories/:id')
+  @ApiOperation({
+    summary: '카테고리 정보 조회',
+    description: '특정 카테고리의 정보를 조회합니다.',
+  })
+  @ApiParam({ name: 'id', description: '카테고리 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '카테고리 정보 조회 성공',
+    type: ResponseDto,
+  })
+  async findCategoryById(
+    @Param('id', ParseIntPipe) categoryId: number,
+  ): Promise<ResponseDto> {
+    const category = await this.storeService.findCategoryById(categoryId);
+
+    return {
+      success: true,
+      data: category,
+      message: '카테고리 정보를 성공적으로 조회했습니다.',
+    };
+  }
+
+  @Put('categories/:id')
+  @ApiOperation({
+    summary: '카테고리 정보 수정',
+    description: '카테고리 정보를 수정합니다.',
+  })
+  @ApiParam({ name: 'id', description: '카테고리 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '카테고리 정보 수정 성공',
+    type: ResponseDto,
+  })
+  async updateCategory(
+    @Param('id', ParseIntPipe) categoryId: number,
+    @Body() updateCategoryDto: UpdateCategoryDto,
+  ): Promise<ResponseDto> {
+    const category = await this.storeService.updateCategory(
+      categoryId,
+      updateCategoryDto,
+    );
+
+    return {
+      success: true,
+      data: category,
+      message: '카테고리 정보가 성공적으로 수정되었습니다.',
+    };
+  }
+
+  @Delete('categories/:id')
+  @ApiOperation({
+    summary: '카테고리 삭제',
+    description: '카테고리를 삭제합니다.',
+  })
+  @ApiParam({ name: 'id', description: '카테고리 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '카테고리 삭제 성공',
+    type: ResponseDto,
+  })
+  async deleteCategory(
+    @Param('id', ParseIntPipe) categoryId: number,
+  ): Promise<ResponseDto> {
+    await this.storeService.deleteCategory(categoryId);
+
+    return {
+      success: true,
+      data: null,
+      message: '카테고리가 성공적으로 삭제되었습니다.',
+    };
+  }
+
+  @Get('categories/:id/menus')
+  @ApiOperation({
+    summary: '카테고리별 메뉴 조회',
+    description: '특정 카테고리의 모든 메뉴를 조회합니다.',
+  })
+  @ApiParam({ name: 'id', description: '카테고리 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '카테고리별 메뉴 조회 성공',
+    type: ResponseDto,
+  })
+  async findMenusByCategory(
+    @Param('id', ParseIntPipe) categoryId: number,
+  ): Promise<ResponseDto> {
+    const menus = await this.storeService.findMenusByCategory(categoryId);
+
+    return {
+      success: true,
+      data: menus,
+      message: '카테고리별 메뉴를 성공적으로 조회했습니다.',
+    };
+  }
+
+  /* -------------------------------------------------------------
+     메뉴 관리
+  ------------------------------------------------------------- */
+
+  @Post('menus')
+  @ApiOperation({
+    summary: '메뉴 생성',
+    description: '새로운 메뉴를 생성합니다.',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '메뉴 생성 성공',
+    type: ResponseDto,
+  })
+  async createMenu(@Body() createMenuDto: CreateMenuDto): Promise<ResponseDto> {
+    const menu = await this.storeService.createMenu(createMenuDto);
+
+    return {
+      success: true,
+      data: menu,
+      message: '메뉴가 성공적으로 생성되었습니다.',
+    };
+  }
+
+  @Get('menus')
+  @ApiOperation({
+    summary: '메뉴 목록 조회',
+    description: '모든 메뉴 목록을 조회합니다.',
+  })
+  @ApiQuery({ name: 'search', required: false, description: '메뉴명 검색' })
+  @ApiQuery({ name: 'min_price', required: false, description: '최소 가격' })
+  @ApiQuery({ name: 'max_price', required: false, description: '최대 가격' })
+  @ApiResponse({
+    status: 200,
+    description: '메뉴 목록 조회 성공',
+    type: ResponseDto,
+  })
+  async findAllMenus(
+    @Query('search') search?: string,
+    @Query('min_price') minPrice?: string,
+    @Query('max_price') maxPrice?: string,
+  ): Promise<ResponseDto> {
+    let menus;
+
+    if (search) {
+      menus = await this.storeService.searchMenusByName(search);
+    } else if (minPrice && maxPrice) {
+      menus = await this.storeService.findMenusByPriceRange(
+        parseInt(minPrice),
+        parseInt(maxPrice),
+      );
+    } else {
+      menus = await this.storeService.findAllMenus();
+    }
+
+    return {
+      success: true,
+      data: menus,
+      message: '메뉴 목록을 성공적으로 조회했습니다.',
+    };
+  }
+
+  @Get('menus/:id')
+  @ApiOperation({
+    summary: '메뉴 정보 조회',
+    description: '특정 메뉴의 정보를 조회합니다.',
+  })
+  @ApiParam({ name: 'id', description: '메뉴 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '메뉴 정보 조회 성공',
+    type: ResponseDto,
+  })
+  async findMenuById(
+    @Param('id', ParseIntPipe) menuId: number,
+  ): Promise<ResponseDto> {
+    const menu = await this.storeService.findMenuById(menuId);
+
+    return {
+      success: true,
+      data: menu,
+      message: '메뉴 정보를 성공적으로 조회했습니다.',
+    };
+  }
+
+  @Put('menus/:id')
+  @ApiOperation({
+    summary: '메뉴 정보 수정',
+    description: '메뉴 정보를 수정합니다.',
+  })
+  @ApiParam({ name: 'id', description: '메뉴 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '메뉴 정보 수정 성공',
+    type: ResponseDto,
+  })
+  async updateMenu(
+    @Param('id', ParseIntPipe) menuId: number,
+    @Body() updateMenuDto: UpdateMenuDto,
+  ): Promise<ResponseDto> {
+    const menu = await this.storeService.updateMenu(menuId, updateMenuDto);
+
+    return {
+      success: true,
+      data: menu,
+      message: '메뉴 정보가 성공적으로 수정되었습니다.',
+    };
+  }
+
+  @Delete('menus/:id')
+  @ApiOperation({ summary: '메뉴 삭제', description: '메뉴를 삭제합니다.' })
+  @ApiParam({ name: 'id', description: '메뉴 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '메뉴 삭제 성공',
+    type: ResponseDto,
+  })
+  async deleteMenu(
+    @Param('id', ParseIntPipe) menuId: number,
+  ): Promise<ResponseDto> {
+    await this.storeService.deleteMenu(menuId);
+
+    return {
+      success: true,
+      data: null,
+      message: '메뉴가 성공적으로 삭제되었습니다.',
     };
   }
 }

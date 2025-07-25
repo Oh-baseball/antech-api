@@ -1,42 +1,48 @@
+// 간편 결제 시스템 - 공통 응답 DTO
+
 import { ApiProperty } from '@nestjs/swagger';
 
-// 기본 응답 형식
-export class BaseResponseDto<T = any> {
-  @ApiProperty({ description: '성공 여부', example: true })
+// 공통 응답 DTO
+export class ResponseDto {
+  @ApiProperty({
+    description: '요청 성공 여부',
+    example: true,
+  })
   success: boolean;
 
-  @ApiProperty({ description: '응답 데이터' })
-  data?: T;
+  @ApiProperty({
+    description: '응답 데이터',
+    example: {},
+  })
+  data: any;
 
   @ApiProperty({
     description: '응답 메시지',
-    example: '성공적으로 처리되었습니다.',
+    example: '요청이 성공적으로 처리되었습니다.',
   })
-  message?: string;
+  message: string;
 }
 
-// 오류 응답 형식
+// 에러 응답 DTO
 export class ErrorResponseDto {
-  @ApiProperty({ description: '성공 여부', example: false })
+  @ApiProperty({
+    description: '요청 성공 여부',
+    example: false,
+  })
   success: boolean;
 
-  @ApiProperty({ description: 'HTTP 상태 코드', example: 400 })
-  statusCode: number;
+  @ApiProperty({
+    description: '에러 메시지',
+    example: '요청 처리 중 오류가 발생했습니다.',
+  })
+  message: string;
 
   @ApiProperty({
-    description: '타임스탬프',
-    example: '2024-01-01T00:00:00.000Z',
+    description: '에러 상세 정보',
+    example: 'Bad Request',
+    required: false,
   })
-  timestamp: string;
-
-  @ApiProperty({ description: '요청 경로', example: '/users' })
-  path: string;
-
-  @ApiProperty({ description: 'HTTP 메서드', example: 'POST' })
-  method: string;
-
-  @ApiProperty({ description: '오류 메시지', example: '잘못된 요청입니다.' })
-  message: string;
+  error?: string;
 }
 
 // 사용자 응답 DTO

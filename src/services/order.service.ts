@@ -1,0 +1,517 @@
+// 간편 결제 시스템 - 주문 및 결제 서비스
+
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import {
+  Order,
+  OrderItem,
+  PaymentHistory,
+  PointHistory,
+  CreateOrderDto,
+  OrderSummaryDto,
+  CreatePaymentDto,
+  PaymentResultDto,
+} from '../entities/store.entity';
+import {
+  PaymentType,
+  PaymentStatus,
+  PointTransactionType,
+} from '../entities/user.entity';
+
+@Injectable()
+export class OrderService {
+  private supabase: SupabaseClient;
+
+  constructor() {
+    this.supabase = createClient(
+      process.env.SUPABASE_URL || '',
+      process.env.SUPABASE_ANON_KEY || '',
+    );
+  }
+
+  /* -------------------------------------------------------------
+     주문 관리
+  ------------------------------------------------------------- */
+
+  // 주문 생성
+  async createOrder(createOrderDto: CreateOrderDto): Promise<OrderSummaryDto> {
+    const { user_id, store_id, items, point_used = 0 } = createOrderDto;
+
+    // 사용자 포인트 잔액 확인
+    if (point_used > 0) {
+      const userBalance = await this.getUserPointBalance(user_id);
+      if (userBalance < point_used) {
+        throw new BadRequestException('포인트 잔액이 부족합니다.');
+      }
+    }
+
+    // 주문 ID 생성 (ORD + YYYYMMDD + 순번)
+    const order_id = await this.generateOrderId();
+
+    // 주문 상품들의 총 금액 계산
+    let total_amount = 0;
+    const orderItemsData: any[] = [];
+
+    for (const item of items) {
+      // 메뉴 정보 조회
+      const { data: menu, error } = await this.supabase
+        .from('menu')
+        .select('price, is_available')
+        .eq('menu_id', item.menu_id)
+        .single();
+
+      if (error || !menu) {
+        throw new NotFoundException(
+          `메뉴 ID ${item.menu_id}를 찾을 수 없습니다.`,
+        );
+      }
+
+      if (!menu.is_available) {
+        throw new BadRequestException(
+          `메뉴 ID ${item.menu_id}는 현재 판매 중지되었습니다.`,
+        );
+      }
+
+      const item_total = menu.price * item.quantity;
+      total_amount += item_total;
+
+      orderItemsData.push({
+        order_id,
+        menu_id: item.menu_id,
+        quantity: item.quantity,
+        unit_price: menu.price,
+        total_price: item_total,
+      });
+    }
+
+    // 최종 결제 금액 계산
+    const final_amount = Math.max(0, total_amount - point_used);
+
+    // 주문 생성
+    const { data: order, error: orderError } = await this.supabase
+      .from('orders')
+      .insert({
+        order_id,
+        user_id,
+        store_id,
+        total_amount,
+        discount_amount: 0,
+        point_used,
+        final_amount,
+        order_status: 'PENDING',
+      })
+      .select()
+      .single();
+
+    if (orderError) {
+      throw new Error(`주문 생성 실패: ${orderError.message}`);
+    }
+
+    // 주문 상품 생성
+    const { error: itemsError } = await this.supabase
+      .from('order_items')
+      .insert(orderItemsData);
+
+    if (itemsError) {
+      throw new Error(`주문 상품 생성 실패: ${itemsError.message}`);
+    }
+
+    // 주문 상세 정보 조회
+    return this.getOrderSummary(order_id);
+  }
+
+  // 주문 조회 (상세)
+  async getOrderSummary(orderId: string): Promise<OrderSummaryDto> {
+    // 주문 기본 정보
+    const { data: order, error: orderError } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('order_id', orderId)
+      .single();
+
+    if (orderError || !order) {
+      throw new NotFoundException('주문을 찾을 수 없습니다.');
+    }
+
+    // 주문 상품 정보
+    const { data: items, error: itemsError } = await this.supabase
+      .from('order_items')
+      .select(
+        `
+        *,
+        menu:menu_id(menu_name)
+      `,
+      )
+      .eq('order_id', orderId);
+
+    if (itemsError) {
+      throw new Error(`주문 상품 조회 실패: ${itemsError.message}`);
+    }
+
+    return {
+      order_id: order.order_id,
+      total_amount: order.total_amount,
+      discount_amount: order.discount_amount,
+      point_used: order.point_used,
+      final_amount: order.final_amount,
+      order_status: order.order_status,
+      created_at: order.created_at,
+      items:
+        items?.map((item) => ({
+          menu_id: item.menu_id,
+          menu_name: item.menu?.menu_name || '',
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.total_price,
+        })) || [],
+    };
+  }
+
+  // 사용자별 주문 내역 조회
+  async getUserOrders(userId: number): Promise<OrderSummaryDto[]> {
+    const { data: orders, error } = await this.supabase
+      .from('orders')
+      .select('order_id')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`주문 내역 조회 실패: ${error.message}`);
+    }
+
+    const orderSummaries: OrderSummaryDto[] = [];
+    for (const order of orders || []) {
+      const summary = await this.getOrderSummary(order.order_id);
+      orderSummaries.push(summary);
+    }
+
+    return orderSummaries;
+  }
+
+  // 매장별 주문 내역 조회
+  async getStoreOrders(storeId: number): Promise<OrderSummaryDto[]> {
+    const { data: orders, error } = await this.supabase
+      .from('orders')
+      .select('order_id')
+      .eq('store_id', storeId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`매장 주문 내역 조회 실패: ${error.message}`);
+    }
+
+    const orderSummaries: OrderSummaryDto[] = [];
+    for (const order of orders || []) {
+      const summary = await this.getOrderSummary(order.order_id);
+      orderSummaries.push(summary);
+    }
+
+    return orderSummaries;
+  }
+
+  /* -------------------------------------------------------------
+     결제 처리
+  ------------------------------------------------------------- */
+
+  // 결제 처리
+  async processPayment(
+    createPaymentDto: CreatePaymentDto,
+  ): Promise<PaymentResultDto> {
+    const {
+      order_id,
+      user_id,
+      method_id,
+      payment_method,
+      payment_amount,
+      point_used = 0,
+    } = createPaymentDto;
+
+    // 주문 확인
+    const { data: order, error: orderError } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('order_id', order_id)
+      .single();
+
+    if (orderError || !order) {
+      throw new NotFoundException('주문을 찾을 수 없습니다.');
+    }
+
+    if (order.order_status !== 'PENDING') {
+      throw new BadRequestException('이미 처리된 주문입니다.');
+    }
+
+    // 결제 금액 검증
+    if (payment_amount + point_used !== order.final_amount) {
+      throw new BadRequestException('결제 금액이 올바르지 않습니다.');
+    }
+
+    // 포인트 사용 시 잔액 확인
+    if (point_used > 0) {
+      const userBalance = await this.getUserPointBalance(user_id);
+      if (userBalance < point_used) {
+        throw new BadRequestException('포인트 잔액이 부족합니다.');
+      }
+    }
+
+    // 결제 ID 생성
+    const payment_id = await this.generatePaymentId();
+
+    try {
+      // 외부 결제 처리 (실제로는 결제 게이트웨이 연동)
+      const externalResult = await this.processExternalPayment(
+        payment_method,
+        payment_amount,
+        method_id,
+      );
+
+      // 결제 내역 생성
+      const { data: payment, error: paymentError } = await this.supabase
+        .from('payment_history')
+        .insert({
+          payment_id,
+          order_id,
+          user_id,
+          method_id,
+          payment_amount,
+          point_used,
+          point_earned: Math.floor(payment_amount * 0.01), // 1% 적립
+          payment_status: PaymentStatus.COMPLETED,
+          payment_method,
+          external_transaction_id: externalResult.transactionId,
+          paid_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (paymentError) {
+        throw new Error(`결제 내역 생성 실패: ${paymentError.message}`);
+      }
+
+      // 포인트 사용 처리
+      if (point_used > 0) {
+        await this.usePoints(user_id, point_used, payment_id);
+      }
+
+      // 포인트 적립 처리
+      if (payment.point_earned > 0) {
+        await this.earnPoints(user_id, payment.point_earned, payment_id);
+      }
+
+      // 주문 상태 업데이트
+      await this.supabase
+        .from('orders')
+        .update({ order_status: 'COMPLETED' })
+        .eq('order_id', order_id);
+
+      return {
+        payment_id: payment.payment_id,
+        payment_status: payment.payment_status,
+        payment_amount: payment.payment_amount,
+        point_used: payment.point_used,
+        point_earned: payment.point_earned,
+        external_transaction_id: payment.external_transaction_id,
+        paid_at: payment.paid_at,
+      };
+    } catch (error) {
+      // 결제 실패 처리
+      await this.supabase.from('payment_history').insert({
+        payment_id,
+        order_id,
+        user_id,
+        method_id,
+        payment_amount,
+        point_used,
+        point_earned: 0,
+        payment_status: PaymentStatus.FAILED,
+        payment_method,
+      });
+
+      throw new BadRequestException(`결제 처리 실패: ${error.message}`);
+    }
+  }
+
+  // 결제 내역 조회
+  async getPaymentHistory(userId: number): Promise<PaymentHistory[]> {
+    const { data: payments, error } = await this.supabase
+      .from('payment_history')
+      .select(
+        `
+        *,
+        orders:order_id(
+          store_id,
+          store:store_id(store_name)
+        )
+      `,
+      )
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`결제 내역 조회 실패: ${error.message}`);
+    }
+
+    return payments || [];
+  }
+
+  /* -------------------------------------------------------------
+     포인트 관리
+  ------------------------------------------------------------- */
+
+  // 포인트 적립
+  private async earnPoints(
+    userId: number,
+    amount: number,
+    paymentId: string,
+  ): Promise<void> {
+    // 현재 잔액 조회
+    const currentBalance = await this.getUserPointBalance(userId);
+    const newBalance = currentBalance + amount;
+
+    // 지갑 업데이트
+    await this.supabase
+      .from('user_wallet')
+      .update({
+        point_balance: newBalance,
+        total_earned_points: this.supabase.rpc('increment_total_earned', {
+          user_id: userId,
+          amount,
+        }),
+      })
+      .eq('user_id', userId);
+
+    // 포인트 내역 생성
+    await this.supabase.from('point_history').insert({
+      user_id: userId,
+      payment_id: paymentId,
+      transaction_type: PointTransactionType.EARN,
+      amount,
+      balance_after: newBalance,
+      description: '결제 적립',
+      expired_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1년 후 만료
+    });
+  }
+
+  // 포인트 사용
+  private async usePoints(
+    userId: number,
+    amount: number,
+    paymentId: string,
+  ): Promise<void> {
+    // 현재 잔액 조회
+    const currentBalance = await this.getUserPointBalance(userId);
+    const newBalance = currentBalance - amount;
+
+    if (newBalance < 0) {
+      throw new BadRequestException('포인트 잔액이 부족합니다.');
+    }
+
+    // 지갑 업데이트
+    await this.supabase
+      .from('user_wallet')
+      .update({
+        point_balance: newBalance,
+        total_used_points: this.supabase.rpc('increment_total_used', {
+          user_id: userId,
+          amount,
+        }),
+      })
+      .eq('user_id', userId);
+
+    // 포인트 내역 생성
+    await this.supabase.from('point_history').insert({
+      user_id: userId,
+      payment_id: paymentId,
+      transaction_type: PointTransactionType.USE,
+      amount: -amount, // 음수로 저장
+      balance_after: newBalance,
+      description: '결제 사용',
+    });
+  }
+
+  // 사용자 포인트 잔액 조회
+  private async getUserPointBalance(userId: number): Promise<number> {
+    const { data: wallet, error } = await this.supabase
+      .from('user_wallet')
+      .select('point_balance')
+      .eq('user_id', userId)
+      .single();
+
+    if (error || !wallet) {
+      throw new NotFoundException('사용자 지갑을 찾을 수 없습니다.');
+    }
+
+    return wallet.point_balance;
+  }
+
+  // 포인트 내역 조회
+  async getPointHistory(userId: number): Promise<PointHistory[]> {
+    const { data: history, error } = await this.supabase
+      .from('point_history')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`포인트 내역 조회 실패: ${error.message}`);
+    }
+
+    return history || [];
+  }
+
+  /* -------------------------------------------------------------
+     유틸리티 메서드
+  ------------------------------------------------------------- */
+
+  // 주문 ID 생성
+  private async generateOrderId(): Promise<string> {
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+
+    // 오늘 날짜의 주문 수 조회
+    const { data: orders, error } = await this.supabase
+      .from('orders')
+      .select('order_id')
+      .like('order_id', `ORD${dateStr}%`);
+
+    const sequence = String((orders?.length || 0) + 1).padStart(3, '0');
+    return `ORD${dateStr}${sequence}`;
+  }
+
+  // 결제 ID 생성
+  private async generatePaymentId(): Promise<string> {
+    const timestamp = Date.now().toString();
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `PAY${timestamp}${random}`;
+  }
+
+  // 외부 결제 처리 (모의)
+  private async processExternalPayment(
+    paymentMethod: PaymentType,
+    amount: number,
+    methodId?: number,
+  ): Promise<{ transactionId: string }> {
+    // 실제로는 각 결제사 API 연동
+    // 여기서는 모의 처리
+
+    if (paymentMethod === PaymentType.POINT) {
+      return { transactionId: 'POINT_' + Date.now() };
+    }
+
+    // 결제 처리 시뮬레이션 (1초 대기)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // 5% 확률로 결제 실패 시뮬레이션
+    if (Math.random() < 0.05) {
+      throw new Error('외부 결제 처리 실패');
+    }
+
+    return {
+      transactionId: `EXT_${paymentMethod}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+    };
+  }
+}

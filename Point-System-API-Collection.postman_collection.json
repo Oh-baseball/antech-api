@@ -1,56 +1,34 @@
 {
   "info": {
-    "_postman_id": "point-system-api-collection",
-    "name": "📱 간편 결제 시스템 API",
-    "description": "\n# 🚀 간편 결제 시스템 API\n\n## ✨ 주요 기능들\n\n- 👤 **사용자 관리**: 개인 사용자 회원가입, 로그인, 프로필 관리\n- 🏪 **매장 관리**: 매장 등록, 조회, 수정, 삭제\n- 📂 **카테고리 관리**: 매장 카테고리 분류\n- 💳 **결제 시스템**: 로고, 결제수단, 계좌, 카드, 토스 송금\n- 📊 **결제 내역**: 결제 내역 조회, 통계\n- 💰 **간편 결제**: 다양한 결제수단을 통한 빠른 결제\n- 🔢 **정확한 타입**: 실제 데이터 타입에 맞춘 ID 체계\n\n## 🚀 사용 방법\n\n1. **Environment 설정**\n   - Variable: `baseUrl` = `http://localhost:8000`\n\n2. **서버 실행**\n   ```bash\n   cd the-movie-api\n   pnpm install\n   pnpm start:dev\n   ```\n\n3. **테스트 순서**\n   1. System → Health Check\n   2. Categories → Create Category\n   3. Users → Create User\n   4. Stores → Create Store\n   5. Payment → Create Logo\n   6. Payment → Create Payment Method\n   7. Pay History → 결제 처리\n\n## 📚 문서\n\n- **Swagger UI**: http://localhost:8000/api-docs\n- **데이터베이스**: Supabase PostgreSQL\n- **API 타입**: RESTful API\n\n## 📝 응답 형식\n\n모든 API는 일관된 응답 형식을 따릅니다:\n\n```json\n{\n  \"success\": true,\n  \"data\": { ... },\n  \"message\": \"성공 메시지\"\n}\n```\n\n## 🔧 주요 변경사항\n\n- ✅ 정확한 데이터 타입 적용 (user_id/store_id: number, 기타 ID: string)\n- ✅ 개인 사용자 중심 시스템으로 변경\n- ✅ 완전한 결제 시스템 구현\n- ✅ 간편 결제 시스템 구현\n- ✅ 고급 통계 및 분석 기능\n    ",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "simple-payment-system-api",
+    "name": "간편 결제 시스템 API",
+    "description": "Supabase를 백엔드로 사용하는 NestJS 기반의 개인 사용자 간편 결제 시스템\n\n## 🎯 주요 기능\n- 👤 **사용자 관리**: 회원가입, 로그인, 프로필 관리\n- 🔐 **고급 인증**: PIN, 패턴, 생체인증 (지문, Face ID)\n- 💰 **지갑 시스템**: 포인트 적립, 사용, 잔액 관리\n- 🏪 **매장 관리**: 매장, 카테고리, 메뉴 관리\n- 📦 **주문 시스템**: 주문 생성, 상품 관리\n- 💳 **결제 시스템**: 카드, 계좌이체, 모바일페이, 포인트 결제\n- 📊 **내역 관리**: 결제 내역, 포인트 내역 조회\n\n## 🔄 결제 플로우\n1. 사용자 로그인 및 인증 설정\n2. 매장 선택 및 메뉴 주문\n3. 결제수단 선택 (카드/계좌/모바일페이/포인트)\n4. 보안 인증 (PIN/패턴/생체인증)\n5. 결제 처리 및 포인트 적립\n6. 결제 완료 및 내역 저장",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "simple-payment-system"
   },
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8000",
-      "type": "string"
-    }
-  ],
   "item": [
     {
-      "name": "🔧 System",
-      "description": "시스템 상태 및 정보 확인",
+      "name": "🏠 시스템 상태",
       "item": [
         {
-          "name": "Health Check",
+          "name": "API 상태 확인",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/health",
+              "raw": "{{baseUrl}}/",
               "host": ["{{baseUrl}}"],
-              "path": ["health"]
-            },
-            "description": "API 서버 상태를 확인합니다."
-          }
-        },
-        {
-          "name": "Database Health Check",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/health/database",
-              "host": ["{{baseUrl}}"],
-              "path": ["health", "database"]
-            },
-            "description": "데이터베이스 연결 상태를 확인합니다."
+              "path": [""]
+            }
           }
         }
       ]
     },
     {
-      "name": "👥 Users",
-      "description": "개인 사용자 관리",
+      "name": "👤 사용자 관리",
       "item": [
         {
-          "name": "Create User",
+          "name": "회원가입",
           "request": {
             "method": "POST",
             "header": [
@@ -61,18 +39,38 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"password\": \"securePassword123!\",\n  \"name\": \"홍길동\",\n  \"pw_number\": \"123456\",\n  \"pw_pattern\": \"1234\"\n}"
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"홍길동\",\n  \"phone\": \"010-1234-5678\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users",
               "host": ["{{baseUrl}}"],
               "path": ["users"]
-            },
-            "description": "새로운 개인 사용자를 생성합니다."
+            }
           }
         },
         {
-          "name": "Get All Users",
+          "name": "로그인",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "login"]
+            }
+          }
+        },
+        {
+          "name": "사용자 목록 조회",
           "request": {
             "method": "GET",
             "header": [],
@@ -80,12 +78,11 @@
               "raw": "{{baseUrl}}/users",
               "host": ["{{baseUrl}}"],
               "path": ["users"]
-            },
-            "description": "모든 사용자 목록을 조회합니다."
+            }
           }
         },
         {
-          "name": "Get User by ID",
+          "name": "사용자 정보 조회",
           "request": {
             "method": "GET",
             "header": [],
@@ -93,12 +90,11 @@
               "raw": "{{baseUrl}}/users/1",
               "host": ["{{baseUrl}}"],
               "path": ["users", "1"]
-            },
-            "description": "특정 사용자 정보를 조회합니다."
+            }
           }
         },
         {
-          "name": "Update User",
+          "name": "사용자 정보 수정",
           "request": {
             "method": "PUT",
             "header": [
@@ -109,31 +105,17 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"김철수\",\n  \"pw_number\": \"654321\"\n}"
+              "raw": "{\n  \"name\": \"김철수\",\n  \"phone\": \"010-9876-5432\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users/1",
               "host": ["{{baseUrl}}"],
               "path": ["users", "1"]
-            },
-            "description": "사용자 정보를 수정합니다."
+            }
           }
         },
         {
-          "name": "Delete User",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/users/1",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "1"]
-            },
-            "description": "사용자를 삭제합니다."
-          }
-        },
-        {
-          "name": "Verify Password",
+          "name": "비밀번호 확인",
           "request": {
             "method": "POST",
             "header": [
@@ -144,65 +126,51 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"password\": \"securePassword123!\"\n}"
+              "raw": "{\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/users/1/verify-password",
               "host": ["{{baseUrl}}"],
               "path": ["users", "1", "verify-password"]
-            },
-            "description": "사용자의 비밀번호를 확인합니다."
+            }
           }
         }
       ]
     },
     {
-      "name": "📂 Categories",
-      "description": "매장 카테고리 관리",
+      "name": "💰 지갑 관리",
       "item": [
         {
-          "name": "Create Category",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"category_id\": \"CAT0001\",\n  \"name\": \"카페\",\n  \"description\": \"커피전문점 카테고리\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": ["{{baseUrl}}"],
-              "path": ["categories"]
-            },
-            "description": "새로운 카테고리를 생성합니다."
-          }
-        },
-        {
-          "name": "Get All Categories",
+          "name": "지갑 정보 조회",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/categories",
+              "raw": "{{baseUrl}}/users/1/wallet",
               "host": ["{{baseUrl}}"],
-              "path": ["categories"]
-            },
-            "description": "모든 카테고리 목록을 조회합니다."
+              "path": ["users", "1", "wallet"]
+            }
+          }
+        },
+        {
+          "name": "포인트 잔액 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/1/balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "1", "balance"]
+            }
           }
         }
       ]
     },
     {
-      "name": "🏪 Stores",
-      "description": "매장 관리",
+      "name": "🔐 인증 설정",
       "item": [
         {
-          "name": "Create Store",
+          "name": "인증 설정 생성",
           "request": {
             "method": "POST",
             "header": [
@@ -213,18 +181,118 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"스타벅스 강남점\",\n  \"address\": \"서울시 강남구 테헤란로 123\",\n  \"category_id\": \"CAT0001\",\n  \"phone\": \"02-1234-5678\",\n  \"description\": \"강남역 근처 스타벅스입니다.\"\n}"
+              "raw": "{\n  \"pin_number\": \"123456\",\n  \"pattern_sequence\": \"147852963\",\n  \"is_fingerprint_enabled\": true,\n  \"is_face_id_enabled\": false,\n  \"auth_required_amount\": 10000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/1/auth-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "1", "auth-settings"]
+            }
+          }
+        },
+        {
+          "name": "인증 설정 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/1/auth-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "1", "auth-settings"]
+            }
+          }
+        },
+        {
+          "name": "인증 설정 수정",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pin_number\": \"654321\",\n  \"auth_required_amount\": 50000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/1/auth-settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "1", "auth-settings"]
+            }
+          }
+        },
+        {
+          "name": "사용자 인증 (PIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"auth_type\": \"PIN\",\n  \"auth_value\": \"123456\",\n  \"device_info\": \"iPhone 15 Pro\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/authenticate",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "authenticate"]
+            }
+          }
+        },
+        {
+          "name": "사용자 인증 (패턴)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"auth_type\": \"PATTERN\",\n  \"auth_value\": \"147852963\",\n  \"device_info\": \"Samsung Galaxy S24\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/authenticate",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "authenticate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏪 매장 관리",
+      "item": [
+        {
+          "name": "매장 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_name\": \"스타벅스 강남점\",\n  \"address\": \"서울특별시 강남구 테헤란로 152\",\n  \"phone\": \"02-1234-5678\",\n  \"business_number\": \"123-45-67890\",\n  \"point_rate\": 1.0,\n  \"logo_url\": \"https://example.com/starbucks-logo.png\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/stores",
               "host": ["{{baseUrl}}"],
               "path": ["stores"]
-            },
-            "description": "새로운 매장을 생성합니다."
+            }
           }
         },
         {
-          "name": "Get All Stores",
+          "name": "매장 목록 조회",
           "request": {
             "method": "GET",
             "header": [],
@@ -232,203 +300,346 @@
               "raw": "{{baseUrl}}/stores",
               "host": ["{{baseUrl}}"],
               "path": ["stores"]
-            },
-            "description": "모든 매장 목록을 조회합니다."
-          }
-        }
-      ]
-    },
-    {
-      "name": "💳 Payment",
-      "description": "결제 시스템 관리",
-      "item": [
-        {
-          "name": "Create Logo",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"스타벅스 로고\",\n  \"image_url\": \"https://logo.starbucks.co.kr/logo.png\",\n  \"user_id\": 1\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/logos",
-              "host": ["{{baseUrl}}"],
-              "path": ["logos"]
-            },
-            "description": "새로운 로고를 생성합니다."
+            }
           }
         },
         {
-          "name": "Create Payment Method",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"method_id\": \"METHOD0001\",\n  \"name\": \"신용카드\",\n  \"description\": \"신용카드로 결제\",\n  \"is_active\": true\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/payment-methods",
-              "host": ["{{baseUrl}}"],
-              "path": ["payment-methods"]
-            },
-            "description": "새로운 결제수단을 생성합니다."
-          }
-        },
-        {
-          "name": "Create Account",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"account_id\": \"ACC0001\",\n  \"user_id\": 1,\n  \"number\": \"123-456-789012\",\n  \"logo_id\": \"LOGO0001\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/accounts",
-              "host": ["{{baseUrl}}"],
-              "path": ["accounts"]
-            },
-            "description": "새로운 계좌를 생성합니다."
-          }
-        },
-        {
-          "name": "Create Card",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"card_id\": \"CARD0001\",\n  \"user_id\": 1,\n  \"number\": \"1234-5678-9012-3456\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/cards",
-              "host": ["{{baseUrl}}"],
-              "path": ["cards"]
-            },
-            "description": "새로운 카드를 생성합니다."
-          }
-        },
-        {
-          "name": "Create Toss Transfer",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"toss_amount\": 10000\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/toss",
-              "host": ["{{baseUrl}}"],
-              "path": ["toss"]
-            },
-            "description": "새로운 토스 송금을 생성합니다."
-          }
-        }
-      ]
-    },
-    {
-      "name": "📊 Pay History",
-      "description": "결제 내역 관리",
-      "item": [
-        {
-          "name": "결제 적립",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"method_id\": \"METHOD0001\",\n  \"amount\": 1000\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pay-history/earn-points",
-              "host": ["{{baseUrl}}"],
-              "path": ["pay-history", "earn-points"]
-            },
-            "description": "결제를 통해 적립합니다."
-          }
-        },
-        {
-          "name": "결제 사용",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"method_id\": \"METHOD0001\",\n  \"amount\": 500\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/pay-history/use-points",
-              "host": ["{{baseUrl}}"],
-              "path": ["pay-history", "use-points"]
-            },
-            "description": "결제를 진행합니다."
-          }
-        },
-        {
-          "name": "잔액 조회",
+          "name": "매장 검색",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/pay-history/balance/1",
+              "raw": "{{baseUrl}}/stores?search=스타벅스",
               "host": ["{{baseUrl}}"],
-              "path": ["pay-history", "balance", "1"]
-            },
-            "description": "사용자의 잔액을 조회합니다."
+              "path": ["stores"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "스타벅스"
+                }
+              ]
+            }
           }
         },
+        {
+          "name": "매장 정보 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "1"]
+            }
+          }
+        },
+        {
+          "name": "매장별 메뉴 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/1/menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "1", "menus"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📂 카테고리 관리",
+      "item": [
+        {
+          "name": "카테고리 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_name\": \"커피\",\n  \"description\": \"각종 커피 음료\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stores/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "categories"]
+            }
+          }
+        },
+        {
+          "name": "카테고리 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "categories"]
+            }
+          }
+        },
+        {
+          "name": "카테고리별 메뉴 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/categories/1/menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "categories", "1", "menus"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🍽️ 메뉴 관리",
+      "item": [
+        {
+          "name": "메뉴 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"store_id\": 1,\n  \"category_id\": 1,\n  \"menu_name\": \"아메리카노\",\n  \"description\": \"깊고 진한 에스프레소의 풍미를 느낄 수 있는 대표 커피\",\n  \"price\": 4500,\n  \"image_url\": \"https://example.com/americano.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stores/menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "menus"]
+            }
+          }
+        },
+        {
+          "name": "메뉴 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/menus",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "menus"]
+            }
+          }
+        },
+        {
+          "name": "메뉴 검색",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/menus?search=아메리카노",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "menus"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "아메리카노"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "가격대별 메뉴 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stores/menus?min_price=3000&max_price=6000",
+              "host": ["{{baseUrl}}"],
+              "path": ["stores", "menus"],
+              "query": [
+                {
+                  "key": "min_price",
+                  "value": "3000"
+                },
+                {
+                  "key": "max_price",
+                  "value": "6000"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 주문 관리",
+      "item": [
+        {
+          "name": "주문 생성",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 1,\n  \"store_id\": 1,\n  \"items\": [\n    {\n      \"menu_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"menu_id\": 2,\n      \"quantity\": 1\n    }\n  ],\n  \"point_used\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "주문 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/ORD20250125001",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "ORD20250125001"]
+            }
+          }
+        },
+        {
+          "name": "사용자별 주문 내역",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/user/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "user", "1"]
+            }
+          }
+        },
+        {
+          "name": "매장별 주문 내역",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/store/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "store", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 결제 처리",
+      "item": [
+        {
+          "name": "카드 결제",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD20250125001\",\n  \"user_id\": 1,\n  \"payment_method\": \"CARD\",\n  \"payment_amount\": 13500,\n  \"point_used\": 1000,\n  \"method_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "payment"]
+            }
+          }
+        },
+        {
+          "name": "모바일페이 결제",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD20250125002\",\n  \"user_id\": 1,\n  \"payment_method\": \"MOBILE_PAY\",\n  \"payment_amount\": 8000,\n  \"point_used\": 0,\n  \"method_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "payment"]
+            }
+          }
+        },
+        {
+          "name": "포인트 결제",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD20250125003\",\n  \"user_id\": 1,\n  \"payment_method\": \"POINT\",\n  \"payment_amount\": 0,\n  \"point_used\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/payment",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "payment"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 내역 조회",
+      "item": [
         {
           "name": "결제 내역 조회",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/pay-history/user/1",
+              "raw": "{{baseUrl}}/orders/payment/history/1",
               "host": ["{{baseUrl}}"],
-              "path": ["pay-history", "user", "1"]
-            },
-            "description": "사용자의 결제 내역을 조회합니다."
+              "path": ["orders", "payment", "history", "1"]
+            }
+          }
+        },
+        {
+          "name": "포인트 내역 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/points/history/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "points", "history", "1"]
+            }
           }
         }
       ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000",
+      "type": "string"
     }
   ]
 }
