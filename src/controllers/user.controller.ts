@@ -8,7 +8,6 @@ import {
   Param,
   HttpCode,
   HttpStatus,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UserService } from '../services/user.service';
@@ -17,11 +16,17 @@ import {
   UpdateUserDto,
   VerifyPasswordDto,
 } from '../dto/user.dto';
-import {
-  UserResponseDto,
-  PasswordVerificationResponseDto,
-  ErrorResponseDto,
-} from '../dto/response.dto';
+import { ErrorResponseDto } from '../dto/response.dto';
+
+// User 응답 DTO
+export class UserResponseDto {
+  user_id: number;
+  name: string;
+  pw_number?: string;
+  pw_pattern?: string;
+  created_at?: Date;
+  updated_at?: Date;
+}
 
 @ApiTags('users')
 @Controller('users')
@@ -79,7 +84,7 @@ export class UserController {
     summary: '사용자 조회',
     description: '사용자 ID로 사용자 정보를 조회합니다.',
   })
-  @ApiParam({ name: 'userId', description: '사용자 ID (숫자)', example: 1 })
+  @ApiParam({ name: 'userId', description: '사용자 ID', example: 1 })
   @ApiResponse({
     status: 200,
     description: '사용자 정보 조회 성공',
@@ -90,7 +95,7 @@ export class UserController {
     description: '사용자를 찾을 수 없습니다.',
     type: ErrorResponseDto,
   })
-  async getUser(@Param('userId', ParseIntPipe) userId: number) {
+  async getUser(@Param('userId') userId: number) {
     const user = await this.userService.findByUserId(userId);
     // 비밀번호 제외하고 반환
     const { password, ...userWithoutPassword } = user;
@@ -105,7 +110,7 @@ export class UserController {
     summary: '사용자 정보 수정',
     description: '사용자 정보를 수정합니다.',
   })
-  @ApiParam({ name: 'userId', description: '사용자 ID (숫자)', example: 1 })
+  @ApiParam({ name: 'userId', description: '사용자 ID', example: 1 })
   @ApiResponse({
     status: 200,
     description: '사용자 정보가 성공적으로 수정되었습니다.',
@@ -122,7 +127,7 @@ export class UserController {
     type: ErrorResponseDto,
   })
   async updateUser(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Param('userId') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     const user = await this.userService.updateUser(userId, updateUserDto);
@@ -137,8 +142,11 @@ export class UserController {
 
   @Delete(':userId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: '사용자 삭제', description: '사용자를 삭제합니다.' })
-  @ApiParam({ name: 'userId', description: '사용자 ID (숫자)', example: 1 })
+  @ApiOperation({
+    summary: '사용자 삭제',
+    description: '사용자를 삭제합니다.',
+  })
+  @ApiParam({ name: 'userId', description: '사용자 ID', example: 1 })
   @ApiResponse({
     status: 204,
     description: '사용자가 성공적으로 삭제되었습니다.',
@@ -148,7 +156,7 @@ export class UserController {
     description: '사용자를 찾을 수 없습니다.',
     type: ErrorResponseDto,
   })
-  async deleteUser(@Param('userId', ParseIntPipe) userId: number) {
+  async deleteUser(@Param('userId') userId: number) {
     await this.userService.deleteUser(userId);
     return {
       success: true,
@@ -161,11 +169,10 @@ export class UserController {
     summary: '비밀번호 확인',
     description: '사용자의 비밀번호를 확인합니다.',
   })
-  @ApiParam({ name: 'userId', description: '사용자 ID (숫자)', example: 1 })
+  @ApiParam({ name: 'userId', description: '사용자 ID', example: 1 })
   @ApiResponse({
     status: 200,
     description: '비밀번호 확인 완료',
-    type: PasswordVerificationResponseDto,
   })
   @ApiResponse({
     status: 404,
@@ -173,7 +180,7 @@ export class UserController {
     type: ErrorResponseDto,
   })
   async verifyPassword(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Param('userId') userId: number,
     @Body() verifyPasswordDto: VerifyPasswordDto,
   ) {
     const isValid = await this.userService.verifyPassword(
@@ -182,30 +189,12 @@ export class UserController {
     );
     return {
       success: true,
-      data: { isValid },
+      data: {
+        isValid,
+      },
       message: isValid
         ? '비밀번호가 일치합니다.'
         : '비밀번호가 일치하지 않습니다.',
-    };
-  }
-
-  @Get('company/:companyId')
-  @ApiOperation({
-    summary: '회사별 사용자 조회',
-    description: '특정 회사에 속한 사용자들을 조회합니다.',
-  })
-  @ApiParam({ name: 'companyId', description: '회사 ID', example: 'COMP0001' })
-  @ApiResponse({
-    status: 200,
-    description: '회사별 사용자 목록 조회 성공',
-  })
-  async getUsersByCompany(@Param('companyId') companyId: string) {
-    const users = await this.userService.findUsersByCompany(companyId);
-    // 비밀번호 제외하고 반환
-    const usersWithoutPassword = users.map(({ password, ...user }) => user);
-    return {
-      success: true,
-      data: usersWithoutPassword,
     };
   }
 }

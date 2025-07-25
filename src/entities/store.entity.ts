@@ -2,7 +2,9 @@ export interface Store {
   store_id: number; // INTEGER IDENTITY
   name: string;
   address: string;
-  image?: string;
+  category_id: string; // VARCHAR(10)
+  phone?: string;
+  description?: string;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -10,20 +12,37 @@ export interface Store {
 export interface CreateStoreDto {
   name: string;
   address: string;
-  image?: string;
+  category_id: string;
+  phone?: string;
+  description?: string;
 }
 
 export interface UpdateStoreDto {
   name?: string;
   address?: string;
-  image?: string;
+  category_id?: string;
+  phone?: string;
+  description?: string;
 }
 
+// Category 인터페이스
 export interface Category {
-  category_id: string; // VARCHAR(8)
+  category_id: string; // VARCHAR(10)
   name: string;
+  description?: string;
   created_at?: Date;
   updated_at?: Date;
+}
+
+export interface CreateCategoryDto {
+  category_id: string;
+  name: string;
+  description?: string;
+}
+
+export interface UpdateCategoryDto {
+  name?: string;
+  description?: string;
 }
 
 export interface Menu {
@@ -59,7 +78,6 @@ export interface PaymentMethod {
 export interface Account {
   account_id: string; // VARCHAR(10)
   user_id: number;
-  company_id?: string;
   number: string;
   logo_id?: string;
 }
@@ -67,13 +85,10 @@ export interface Account {
 export interface Card {
   card_id: string; // VARCHAR(10)
   user_id: number;
-  company_id?: string;
   number: string;
 }
 
 export interface Toss {
-  toss_id: number; // BIGSERIAL
   user_id: number;
-  company_id: string;
   toss_amount: number;
 }

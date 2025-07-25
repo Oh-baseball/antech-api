@@ -111,19 +111,4 @@ export class UserService {
     const user = await this.findByUserId(userId);
     return bcrypt.compare(password, user.password);
   }
-
-  // 회사별 사용자 조회
-  async findUsersByCompany(companyId: string): Promise<User[]> {
-    const { data, error } = await this.supabase
-      .from('users')
-      .select('*')
-      .eq('company_id', companyId)
-      .order('user_id');
-
-    if (error) {
-      throw new Error(`Failed to fetch users by company: ${error.message}`);
-    }
-
-    return data || [];
-  }
 }

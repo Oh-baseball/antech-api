@@ -32,18 +32,8 @@ export class PaymentService {
     return this.databaseConfig.getClient();
   }
 
-  // ===== LOGO 관리 =====
+  // ===== Logo 관련 =====
   async createLogo(createLogoDto: CreateLogoDto): Promise<Logo> {
-    const { data: existingLogo } = await this.supabase
-      .from('logo')
-      .select('logo_id')
-      .eq('logo_id', createLogoDto.logo_id)
-      .single();
-
-    if (existingLogo) {
-      throw new ConflictException('Logo ID already exists');
-    }
-
     const { data, error } = await this.supabase
       .from('logo')
       .insert([createLogoDto])
@@ -117,20 +107,10 @@ export class PaymentService {
     }
   }
 
-  // ===== PAYMENT METHOD 관리 =====
+  // ===== PaymentMethod 관련 =====
   async createPaymentMethod(
     createPaymentMethodDto: CreatePaymentMethodDto,
   ): Promise<PaymentMethod> {
-    const { data: existingMethod } = await this.supabase
-      .from('payment_method')
-      .select('method_id')
-      .eq('method_id', createPaymentMethodDto.method_id)
-      .single();
-
-    if (existingMethod) {
-      throw new ConflictException('Payment method ID already exists');
-    }
-
     const { data, error } = await this.supabase
       .from('payment_method')
       .insert([createPaymentMethodDto])
@@ -147,12 +127,7 @@ export class PaymentService {
   async findAllPaymentMethods(): Promise<PaymentMethod[]> {
     const { data, error } = await this.supabase
       .from('payment_method')
-      .select(
-        `
-        *,
-        logo:logo_id (image)
-      `,
-      )
+      .select('*')
       .order('method_id');
 
     if (error) {
@@ -165,12 +140,7 @@ export class PaymentService {
   async findPaymentMethodById(methodId: string): Promise<PaymentMethod> {
     const { data, error } = await this.supabase
       .from('payment_method')
-      .select(
-        `
-        *,
-        logo:logo_id (image)
-      `,
-      )
+      .select('*')
       .eq('method_id', methodId)
       .single();
 
@@ -179,29 +149,6 @@ export class PaymentService {
     }
 
     return data;
-  }
-
-  async findPaymentMethodsByType(
-    type: 'CARD' | 'BANK' | 'MOBILE',
-  ): Promise<PaymentMethod[]> {
-    const { data, error } = await this.supabase
-      .from('payment_method')
-      .select(
-        `
-        *,
-        logo:logo_id (image)
-      `,
-      )
-      .eq('type', type)
-      .order('name');
-
-    if (error) {
-      throw new Error(
-        `Failed to fetch payment methods by type: ${error.message}`,
-      );
-    }
-
-    return data || [];
   }
 
   async updatePaymentMethod(
@@ -237,18 +184,8 @@ export class PaymentService {
     }
   }
 
-  // ===== ACCOUNT 관리 =====
+  // ===== Account 관련 =====
   async createAccount(createAccountDto: CreateAccountDto): Promise<Account> {
-    const { data: existingAccount } = await this.supabase
-      .from('account')
-      .select('account_id')
-      .eq('account_id', createAccountDto.account_id)
-      .single();
-
-    if (existingAccount) {
-      throw new ConflictException('Account ID already exists');
-    }
-
     const { data, error } = await this.supabase
       .from('account')
       .insert([createAccountDto])
@@ -262,21 +199,14 @@ export class PaymentService {
     return data;
   }
 
-  async findAccountsByUserId(userId: number): Promise<Account[]> {
+  async findAllAccounts(): Promise<Account[]> {
     const { data, error } = await this.supabase
       .from('account')
-      .select(
-        `
-        *,
-        logo:logo_id (image),
-        company:company_id (point)
-      `,
-      )
-      .eq('user_id', userId)
+      .select('*')
       .order('account_id');
 
     if (error) {
-      throw new Error(`Failed to fetch user accounts: ${error.message}`);
+      throw new Error(`Failed to fetch accounts: ${error.message}`);
     }
 
     return data || [];
@@ -285,13 +215,7 @@ export class PaymentService {
   async findAccountById(accountId: string): Promise<Account> {
     const { data, error } = await this.supabase
       .from('account')
-      .select(
-        `
-        *,
-        logo:logo_id (image),
-        company:company_id (point)
-      `,
-      )
+      .select('*')
       .eq('account_id', accountId)
       .single();
 
@@ -335,18 +259,8 @@ export class PaymentService {
     }
   }
 
-  // ===== CARD 관리 =====
+  // ===== Card 관련 =====
   async createCard(createCardDto: CreateCardDto): Promise<Card> {
-    const { data: existingCard } = await this.supabase
-      .from('card')
-      .select('card_id')
-      .eq('card_id', createCardDto.card_id)
-      .single();
-
-    if (existingCard) {
-      throw new ConflictException('Card ID already exists');
-    }
-
     const { data, error } = await this.supabase
       .from('card')
       .insert([createCardDto])
@@ -360,20 +274,14 @@ export class PaymentService {
     return data;
   }
 
-  async findCardsByUserId(userId: number): Promise<Card[]> {
+  async findAllCards(): Promise<Card[]> {
     const { data, error } = await this.supabase
       .from('card')
-      .select(
-        `
-        *,
-        company:company_id (point)
-      `,
-      )
-      .eq('user_id', userId)
+      .select('*')
       .order('card_id');
 
     if (error) {
-      throw new Error(`Failed to fetch user cards: ${error.message}`);
+      throw new Error(`Failed to fetch cards: ${error.message}`);
     }
 
     return data || [];
@@ -382,12 +290,7 @@ export class PaymentService {
   async findCardById(cardId: string): Promise<Card> {
     const { data, error } = await this.supabase
       .from('card')
-      .select(
-        `
-        *,
-        company:company_id (point)
-      `,
-      )
+      .select('*')
       .eq('card_id', cardId)
       .single();
 
@@ -431,7 +334,7 @@ export class PaymentService {
     }
   }
 
-  // ===== TOSS 관리 =====
+  // ===== Toss 관련 =====
   async createToss(createTossDto: CreateTossDto): Promise<Toss> {
     const { data, error } = await this.supabase
       .from('toss')
@@ -446,52 +349,41 @@ export class PaymentService {
     return data;
   }
 
-  async findTossByUserId(userId: number): Promise<Toss[]> {
+  async findAllToss(): Promise<Toss[]> {
     const { data, error } = await this.supabase
       .from('toss')
-      .select(
-        `
-        *,
-        company:company_id (point)
-      `,
-      )
-      .eq('user_id', userId)
-      .order('toss_id', { ascending: false });
+      .select('*')
+      .order('user_id');
 
     if (error) {
-      throw new Error(`Failed to fetch user toss history: ${error.message}`);
+      throw new Error(`Failed to fetch toss records: ${error.message}`);
     }
 
     return data || [];
   }
 
-  async findTossById(tossId: number): Promise<Toss> {
+  async findTossByUserId(userId: number): Promise<Toss[]> {
     const { data, error } = await this.supabase
       .from('toss')
-      .select(
-        `
-        *,
-        company:company_id (point)
-      `,
-      )
-      .eq('toss_id', tossId)
-      .single();
+      .select('*')
+      .eq('user_id', userId)
+      .order('user_id');
 
-    if (error || !data) {
-      throw new NotFoundException('Toss transaction not found');
+    if (error) {
+      throw new Error(`Failed to fetch toss records: ${error.message}`);
     }
 
-    return data;
+    return data || [];
   }
 
   async updateToss(
-    tossId: number,
+    userId: number,
     updateTossDto: UpdateTossDto,
   ): Promise<Toss> {
     const { data, error } = await this.supabase
       .from('toss')
       .update(updateTossDto)
-      .eq('toss_id', tossId)
+      .eq('user_id', userId)
       .select()
       .single();
 
@@ -500,42 +392,20 @@ export class PaymentService {
     }
 
     if (!data) {
-      throw new NotFoundException('Toss transaction not found');
+      throw new NotFoundException('Toss record not found');
     }
 
     return data;
   }
 
-  async deleteToss(tossId: number): Promise<void> {
+  async deleteToss(userId: number): Promise<void> {
     const { error } = await this.supabase
       .from('toss')
       .delete()
-      .eq('toss_id', tossId);
+      .eq('user_id', userId);
 
     if (error) {
       throw new Error(`Failed to delete toss: ${error.message}`);
     }
-  }
-
-  // ===== 통계 =====
-  async getTossStatsByCompany(companyId: string) {
-    const { data, error } = await this.supabase
-      .from('toss')
-      .select('toss_amount')
-      .eq('company_id', companyId);
-
-    if (error) {
-      throw new Error(`Failed to fetch toss stats: ${error.message}`);
-    }
-
-    const totalAmount =
-      data?.reduce((sum, record) => sum + record.toss_amount, 0) || 0;
-    const transactionCount = data?.length || 0;
-
-    return {
-      totalAmount,
-      transactionCount,
-      companyId,
-    };
   }
 }

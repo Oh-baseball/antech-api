@@ -1,9 +1,8 @@
 import {
   IsString,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
-  IsEnum,
+  IsNumber,
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -11,44 +10,67 @@ import { ApiProperty } from '@nestjs/swagger';
 // Logo DTOs
 export class CreateLogoDto {
   @ApiProperty({
-    description: '로고 ID',
-    example: 'LOGO0001',
-    maxLength: 8,
+    description: '로고 이름',
+    example: '스타벅스 로고',
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
-  logo_id: string;
+  name: string;
 
   @ApiProperty({
     description: '로고 이미지 URL',
-    example: 'https://example.com/logos/samsung_logo.png',
+    example: 'https://logo.starbucks.co.kr/logo.png',
+    maxLength: 500,
   })
   @IsString()
   @IsNotEmpty()
-  image: string;
+  image_url: string;
+
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  user_id: number;
 }
 
 export class UpdateLogoDto {
   @ApiProperty({
-    description: '로고 이미지 URL',
-    example: 'https://example.com/logos/new_samsung_logo.png',
+    description: '로고 이름',
+    example: '스타벅스 새 로고',
+    maxLength: 100,
     required: false,
   })
   @IsOptional()
   @IsString()
-  image?: string;
+  name?: string;
+
+  @ApiProperty({
+    description: '로고 이미지 URL',
+    example: 'https://logo.starbucks.co.kr/new-logo.png',
+    maxLength: 500,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  image_url?: string;
+
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 2,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  user_id?: number;
 }
 
 // PaymentMethod DTOs
-export enum PaymentType {
-  CARD = 'CARD',
-  BANK = 'BANK',
-  MOBILE = 'MOBILE',
-}
-
 export class CreatePaymentMethodDto {
   @ApiProperty({
-    description: '결제 수단 ID',
+    description: '결제수단 ID',
     example: 'METHOD0001',
     maxLength: 10,
   })
@@ -57,58 +79,62 @@ export class CreatePaymentMethodDto {
   method_id: string;
 
   @ApiProperty({
-    description: '로고 ID',
-    example: 'LOGO0001',
-  })
-  @IsString()
-  @IsNotEmpty()
-  logo_id: string;
-
-  @ApiProperty({
-    description: '결제 유형',
-    enum: PaymentType,
-    example: PaymentType.CARD,
-  })
-  @IsEnum(PaymentType)
-  type: PaymentType;
-
-  @ApiProperty({
-    description: '결제 수단 이름',
-    example: 'VISA 신용카드',
+    description: '결제수단 이름',
+    example: '신용카드',
+    maxLength: 50,
   })
   @IsString()
   @IsNotEmpty()
   name: string;
-}
 
-export class UpdatePaymentMethodDto {
   @ApiProperty({
-    description: '로고 ID',
-    example: 'LOGO0002',
+    description: '결제수단 설명',
+    example: '신용카드로 결제',
+    maxLength: 200,
     required: false,
   })
   @IsOptional()
   @IsString()
-  logo_id?: string;
+  description?: string;
 
   @ApiProperty({
-    description: '결제 유형',
-    enum: PaymentType,
-    example: PaymentType.MOBILE,
+    description: '활성화 여부',
+    example: true,
     required: false,
+    default: true,
   })
   @IsOptional()
-  @IsEnum(PaymentType)
-  type?: PaymentType;
+  is_active?: boolean;
+}
 
+export class UpdatePaymentMethodDto {
   @ApiProperty({
-    description: '결제 수단 이름',
-    example: '카카오페이',
+    description: '결제수단 이름',
+    example: '체크카드',
+    maxLength: 50,
     required: false,
   })
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiProperty({
+    description: '결제수단 설명',
+    example: '체크카드로 결제',
+    maxLength: 200,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({
+    description: '활성화 여부',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  is_active?: boolean;
 }
 
 // Account DTOs
@@ -131,17 +157,8 @@ export class CreateAccountDto {
   user_id: number;
 
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0001',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '계좌번호',
-    example: '110-123-456789',
+    example: '123-456-789012',
     maxLength: 30,
   })
   @IsString()
@@ -150,7 +167,7 @@ export class CreateAccountDto {
 
   @ApiProperty({
     description: '로고 ID',
-    example: 'LOGO0011',
+    example: 'LOGO0001',
     required: false,
   })
   @IsOptional()
@@ -160,17 +177,8 @@ export class CreateAccountDto {
 
 export class UpdateAccountDto {
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0002',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '계좌번호',
-    example: '110-123-456780',
+    example: '987-654-321098',
     maxLength: 30,
     required: false,
   })
@@ -180,7 +188,7 @@ export class UpdateAccountDto {
 
   @ApiProperty({
     description: '로고 ID',
-    example: 'LOGO0012',
+    example: 'LOGO0002',
     required: false,
   })
   @IsOptional()
@@ -208,15 +216,6 @@ export class CreateCardDto {
   user_id: number;
 
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0001',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '카드번호',
     example: '1234-5678-9012-3456',
     maxLength: 30,
@@ -228,17 +227,8 @@ export class CreateCardDto {
 
 export class UpdateCardDto {
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0002',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '카드번호',
-    example: '1234-5678-9012-3457',
+    example: '9876-5432-1098-7654',
     maxLength: 30,
     required: false,
   })
@@ -258,41 +248,24 @@ export class CreateTossDto {
   user_id: number;
 
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0001',
-  })
-  @IsString()
-  @IsNotEmpty()
-  company_id: string;
-
-  @ApiProperty({
     description: '토스 금액',
-    example: 50000,
-    minimum: 0,
+    example: 10000,
+    minimum: 1,
   })
   @IsNumber()
-  @Min(0)
+  @Min(1)
   toss_amount: number;
 }
 
 export class UpdateTossDto {
   @ApiProperty({
-    description: '회사 ID',
-    example: 'COMP0002',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '토스 금액',
-    example: 75000,
-    minimum: 0,
+    example: 15000,
+    minimum: 1,
     required: false,
   })
   @IsOptional()
   @IsNumber()
-  @Min(0)
+  @Min(1)
   toss_amount?: number;
 }

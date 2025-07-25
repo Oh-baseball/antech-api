@@ -33,13 +33,31 @@ export class CreateStoreDto {
   address: string;
 
   @ApiProperty({
-    description: '매장 이미지 URL',
-    example: 'https://example.com/store-image.jpg',
+    description: '카테고리 ID',
+    example: 'CAT0001',
+    maxLength: 10,
+  })
+  @IsString()
+  @IsNotEmpty()
+  category_id: string;
+
+  @ApiProperty({
+    description: '매장 전화번호',
+    example: '02-1234-5678',
     required: false,
   })
   @IsOptional()
   @IsString()
-  image?: string;
+  phone?: string;
+
+  @ApiProperty({
+    description: '매장 설명',
+    example: '강남역 근처 스타벅스입니다.',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 export class UpdateStoreDto {
@@ -70,20 +88,39 @@ export class UpdateStoreDto {
   address?: string;
 
   @ApiProperty({
-    description: '매장 이미지 URL',
-    example: 'https://example.com/new-store-image.jpg',
+    description: '카테고리 ID',
+    example: 'CAT0002',
+    maxLength: 10,
     required: false,
   })
   @IsOptional()
   @IsString()
-  image?: string;
+  category_id?: string;
+
+  @ApiProperty({
+    description: '매장 전화번호',
+    example: '02-9876-5432',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @ApiProperty({
+    description: '매장 설명',
+    example: '신논현역 근처 스타벅스입니다.',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 export class CreateCategoryDto {
   @ApiProperty({
     description: '카테고리 ID',
     example: 'CAT0001',
-    maxLength: 8,
+    maxLength: 10,
   })
   @IsString()
   @IsNotEmpty()
@@ -100,4 +137,37 @@ export class CreateCategoryDto {
   @MinLength(1)
   @MaxLength(50)
   name: string;
+
+  @ApiProperty({
+    description: '카테고리 설명',
+    example: '음료 카테고리입니다.',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+export class UpdateCategoryDto {
+  @ApiProperty({
+    description: '카테고리 이름',
+    example: '디저트',
+    minLength: 1,
+    maxLength: 50,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(50)
+  name?: string;
+
+  @ApiProperty({
+    description: '카테고리 설명',
+    example: '디저트 카테고리입니다.',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

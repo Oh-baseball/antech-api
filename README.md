@@ -37,26 +37,28 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
-# 포인트 적립/사용 시스템 API
+# 간편 결제 시스템 API
 
-> Supabase를 백엔드로 사용하는 NestJS 기반의 포인트 적립 및 사용 시스템
+> Supabase를 백엔드로 사용하는 NestJS 기반의 개인 사용자 간편 결제 시스템
 
 ## 🎯 프로젝트 개요
 
-이 프로젝트는 사용자가 매장에서 포인트를 적립하고 사용할 수 있는 시스템의 백엔드 API입니다. NestJS와 TypeScript로 구축되었으며, Supabase(PostgreSQL)를 데이터베이스로 사용합니다.
+이 프로젝트는 개인 사용자가 매장에서 간편하게 결제할 수 있는 시스템의 백엔드 API입니다. NestJS와 TypeScript로 구축되었으며, Supabase(PostgreSQL)를 데이터베이스로 사용합니다.
 
 ### 주요 기능
 
-- 👤 **사용자 관리**: 회원가입, 로그인, 프로필 관리
+- 👤 **사용자 관리**: 개인 회원가입, 로그인, 프로필 관리
 - 🏪 **매장 관리**: 매장 등록, 조회, 수정, 삭제
 - 📂 **카테고리 관리**: 매장 카테고리 분류
-- 💳 **포인트 시스템**: 포인트 적립, 사용, 잔액 조회, 통계
+- 💳 **결제 시스템**: 로고, 결제수단, 계좌, 카드, 토스 송금
+- 📊 **결제 내역**: 결제 내역 조회, 통계
+- 💰 **간편 결제**: 다양한 결제수단을 통한 빠른 결제
 
 ### 기술 스택
 
 - **Backend**: NestJS, TypeScript
 - **Database**: Supabase (PostgreSQL)
-- **Documentation**: Swagger/Post API docs
+- **Documentation**: Swagger/OpenAPI docs
 - **Validation**: class-validator, class-transformer
 - **Security**: bcrypt (password hashing)
 
@@ -122,36 +124,45 @@ pnpm start:prod
 
 ### 주요 엔드포인트
 
-| 카테고리 | 엔드포인트                          | 설명              |
-| -------- | ----------------------------------- | ----------------- |
-| 시스템   | `GET /health`                       | 서버 상태 확인    |
-| 시스템   | `GET /health/database`              | DB 연결 상태 확인 |
-| 사용자   | `POST /users`                       | 사용자 생성       |
-| 사용자   | `GET /users/{userId}`               | 사용자 조회       |
-| 매장     | `POST /stores`                      | 매장 생성         |
-| 매장     | `GET /stores`                       | 매장 목록 조회    |
-| 포인트   | `POST /pay-history/earn-points`     | 포인트 적립       |
-| 포인트   | `POST /pay-history/use-points`      | 포인트 사용       |
-| 포인트   | `GET /pay-history/balance/{userId}` | 포인트 잔액 조회  |
+| 카테고리 | 엔드포인트                          | 설명               |
+| -------- | ----------------------------------- | ------------------ |
+| 시스템   | `GET /health`                       | 서버 상태 확인     |
+| 시스템   | `GET /health/database`              | DB 연결 상태 확인  |
+| 사용자   | `POST /users`                       | 사용자 생성        |
+| 사용자   | `GET /users/{userId}`               | 사용자 조회        |
+| 매장     | `POST /stores`                      | 매장 생성          |
+| 매장     | `GET /stores`                       | 매장 목록 조회     |
+| 카테고리 | `POST /categories`                  | 카테고리 생성      |
+| 카테고리 | `GET /categories`                   | 카테고리 목록 조회 |
+| 결제내역 | `POST /pay-history/earn-points`     | 결제 적립          |
+| 결제내역 | `POST /pay-history/use-points`      | 결제 사용          |
+| 결제내역 | `GET /pay-history/balance/{userId}` | 잔액 조회          |
+| 결제     | `POST /logos`                       | 로고 생성          |
+| 결제     | `POST /payment-methods`             | 결제수단 생성      |
+| 결제     | `POST /accounts`                    | 계좌 생성          |
+| 결제     | `POST /cards`                       | 카드 생성          |
+| 결제     | `POST /toss`                        | 토스 송금 생성     |
 
 ## 🧪 테스트
 
-### Postman Collection 생성
+### Postman Collection 사용
 
-```bash
-# 기본 컬렉션 생성
-pnpm postman:generate
-
-# 응답 예시 포함 컬렉션 생성 (권장)
-pnpm postman:generate-with-responses
-```
-
-생성된 JSON 파일을 Postman에서 Import하여 사용하세요:
+프로젝트 루트에 있는 `Point-System-API-Collection.postman_collection.json` 파일을 Postman에서 Import하여 사용하세요:
 
 1. **Postman 앱 열기**
 2. **Import** 버튼 클릭
-3. `Point-System-API-Collection-with-Responses.postman_collection.json` 파일 선택
+3. `Point-System-API-Collection.postman_collection.json` 파일 선택
 4. **Environment 설정**: `baseUrl` = `http://localhost:8000`
+
+### 테스트 순서
+
+1. System → Health Check
+2. Categories → Create Category
+3. Users → Create User
+4. Stores → Create Store
+5. Payment → Create Logo
+6. Payment → Create Payment Method
+7. Pay History → 결제 처리
 
 ### 단위 테스트
 
@@ -194,9 +205,6 @@ pnpm lint
 
 # 코드 포맷팅
 pnpm format
-
-# 문서 서버 실행 (개발 모드 + 문서 링크)
-pnpm docs:serve
 ```
 
 ### 프로젝트 구조
@@ -206,16 +214,23 @@ src/
 ├── controllers/          # API 컨트롤러
 │   ├── user.controller.ts
 │   ├── store.controller.ts
-│   └── pay-history.controller.ts
+│   ├── pay-history.controller.ts
+│   └── payment.controller.ts
 ├── services/            # 비즈니스 로직
 │   ├── user.service.ts
 │   ├── store.service.ts
-│   └── pay-history.service.ts
+│   ├── pay-history.service.ts
+│   └── payment.service.ts
 ├── dto/                 # 데이터 전송 객체
 │   ├── user.dto.ts
 │   ├── store.dto.ts
 │   ├── pay-history.dto.ts
+│   ├── payment.dto.ts
 │   └── response.dto.ts
+├── entities/            # 엔티티 인터페이스
+│   ├── user.entity.ts
+│   ├── store.entity.ts
+│   └── pay-history.entity.ts
 ├── config/              # 설정 파일
 │   ├── database.config.ts
 │   └── supabase.config.ts

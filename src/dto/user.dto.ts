@@ -9,15 +9,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @ApiProperty({
-    description: '회사/기업 ID',
-    example: 'COMP0001',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
-  @ApiProperty({
     description: '비밀번호',
     example: 'password123',
     minLength: 6,
@@ -59,15 +50,6 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ApiProperty({
-    description: '회사/기업 ID',
-    example: 'COMP0002',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  company_id?: string;
-
   @ApiProperty({
     description: '새 비밀번호',
     example: 'newpassword123',

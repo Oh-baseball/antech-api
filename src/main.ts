@@ -28,20 +28,22 @@ async function bootstrap() {
 
   // Swagger 설정
   const config = new DocumentBuilder()
-    .setTitle('포인트 적립/사용 시스템 API')
+    .setTitle('간편 결제 시스템 API')
     .setDescription(
-      'Supabase를 백엔드로 사용하는 NestJS 기반의 포인트 적립 및 사용 시스템',
+      'Supabase를 백엔드로 사용하는 NestJS 기반의 개인 사용자 간편 결제 시스템',
     )
     .setVersion('1.0')
+    .addTag('system', '시스템 관리')
     .addTag('users', '사용자 관리')
     .addTag('stores', '매장 관리')
     .addTag('categories', '카테고리 관리')
-    .addTag('pay-history', '포인트 관리')
-    .addServer(
-      'http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com',
-      '프로덕션 서버',
-    )
-    .addServer('http://localhost:8000', '개발 서버') // 포트도 8000으로 수정
+    .addTag('pay-history', '결제 내역 관리')
+    .addTag('logos', '로고 관리')
+    .addTag('payment-methods', '결제수단 관리')
+    .addTag('accounts', '계좌 관리')
+    .addTag('cards', '카드 관리')
+    .addTag('toss', '토스 송금 관리')
+    .addServer('http://localhost:8000', '개발 서버')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -53,12 +55,12 @@ async function bootstrap() {
   });
 
   // 포트 설정
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 8000;
   await app.listen(port);
 
   console.log(`🚀 Application is running on: http://localhost:${port}`);
   console.log(`📚 Swagger API Docs: http://localhost:${port}/api-docs`);
-  console.log(`📋 Postman Collection: http://localhost:${port}/api-docs-json`);
+  console.log(`📋 API JSON: http://localhost:${port}/api-docs-json`);
 }
 
 bootstrap();

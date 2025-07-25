@@ -1,6 +1,5 @@
 export interface User {
   user_id: number; // INTEGER IDENTITY
-  company_id?: string; // VARCHAR(10) - 회사 ID 추가
   password: string;
   name: string;
   pw_number?: string; // VARCHAR(20)
@@ -10,7 +9,6 @@ export interface User {
 }
 
 export interface CreateUserDto {
-  company_id?: string;
   password: string;
   name: string;
   pw_number?: string;
@@ -18,7 +16,6 @@ export interface CreateUserDto {
 }
 
 export interface UpdateUserDto {
-  company_id?: string;
   password?: string;
   name?: string;
   pw_number?: string;
