@@ -616,7 +616,9 @@ export class UserService {
       .single();
 
     if (error || !updatedPaymentMethod) {
-      throw new Error(`결제 수단 수정 실패: ${error.message}`);
+      throw new Error(
+        `결제 수단 수정 실패: ${error?.message || '알 수 없는 오류'}`,
+      );
     }
 
     return updatedPaymentMethod;
@@ -674,7 +676,9 @@ export class UserService {
       .single();
 
     if (error || !updatedPaymentMethod) {
-      throw new Error(`기본 결제 수단 설정 실패: ${error.message}`);
+      throw new Error(
+        `기본 결제 수단 설정 실패: ${error?.message || '알 수 없는 오류'}`,
+      );
     }
 
     return updatedPaymentMethod;
