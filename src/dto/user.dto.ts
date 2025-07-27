@@ -382,3 +382,255 @@ export class WalletInfoDto {
   })
   updated_at: Date;
 }
+
+/* -------------------------------------------------------------
+   결제 수단 관리 DTO
+------------------------------------------------------------- */
+
+export class CreatePaymentMethodDto {
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({
+    description: '결제 업체 ID',
+    example: 'card_001',
+  })
+  @IsString()
+  @MaxLength(20)
+  provider_id: string;
+
+  @ApiProperty({
+    description: '마스킹된 카드/계좌 번호',
+    example: '**** **** **** 1234',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  masked_number?: string;
+
+  @ApiProperty({
+    description: '카드사명',
+    example: '신한카드',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  card_company?: string;
+
+  @ApiProperty({
+    description: '은행명',
+    example: '국민은행',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  bank_name?: string;
+
+  @ApiProperty({
+    description: '결제 토큰',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  payment_token?: string;
+
+  @ApiProperty({
+    description: '사용자 지정 별칭',
+    example: '내 메인 카드',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  alias_name?: string;
+
+  @ApiProperty({
+    description: '기본 결제 수단 여부',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_default?: boolean;
+}
+
+export class UpdatePaymentMethodDto {
+  @ApiProperty({
+    description: '마스킹된 카드/계좌 번호',
+    example: '**** **** **** 5678',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  masked_number?: string;
+
+  @ApiProperty({
+    description: '카드사명',
+    example: '우리카드',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  card_company?: string;
+
+  @ApiProperty({
+    description: '은행명',
+    example: '하나은행',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  bank_name?: string;
+
+  @ApiProperty({
+    description: '결제 토큰',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  payment_token?: string;
+
+  @ApiProperty({
+    description: '사용자 지정 별칭',
+    example: '서브 카드',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  alias_name?: string;
+
+  @ApiProperty({
+    description: '기본 결제 수단 여부',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_default?: boolean;
+
+  @ApiProperty({
+    description: '활성화 여부',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+}
+
+export class PaymentMethodDto {
+  @ApiProperty({
+    description: '결제 수단 ID',
+    example: 1,
+  })
+  method_id: number;
+
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  user_id: number;
+
+  @ApiProperty({
+    description: '결제 업체 ID',
+    example: 'card_001',
+  })
+  provider_id: string;
+
+  @ApiProperty({
+    description: '마스킹된 카드/계좌 번호',
+    example: '**** **** **** 1234',
+    required: false,
+  })
+  masked_number?: string;
+
+  @ApiProperty({
+    description: '카드사명',
+    example: '신한카드',
+    required: false,
+  })
+  card_company?: string;
+
+  @ApiProperty({
+    description: '은행명',
+    example: '국민은행',
+    required: false,
+  })
+  bank_name?: string;
+
+  @ApiProperty({
+    description: '결제 토큰',
+    required: false,
+  })
+  payment_token?: string;
+
+  @ApiProperty({
+    description: '사용자 지정 별칭',
+    example: '내 메인 카드',
+    required: false,
+  })
+  alias_name?: string;
+
+  @ApiProperty({
+    description: '기본 결제 수단 여부',
+    example: false,
+  })
+  is_default: boolean;
+
+  @ApiProperty({
+    description: '활성화 여부',
+    example: true,
+  })
+  is_active: boolean;
+
+  @ApiProperty({
+    description: '생성일',
+    example: '2025-01-25T10:30:00Z',
+  })
+  created_at: Date;
+}
+
+export class PaymentProviderDto {
+  @ApiProperty({
+    description: '업체 ID',
+    example: 'card_001',
+  })
+  provider_id: string;
+
+  @ApiProperty({
+    description: '업체명',
+    example: '신용카드',
+  })
+  provider_name: string;
+
+  @ApiProperty({
+    description: '결제 타입',
+    example: 'CARD',
+    enum: ['CARD', 'BANK_TRANSFER', 'MOBILE_PAY', 'POINT'],
+  })
+  payment_type: string;
+
+  @ApiProperty({
+    description: '업체 로고 URL',
+    example: 'https://example.com/logos/card.png',
+    required: false,
+  })
+  logo_url?: string;
+
+  @ApiProperty({
+    description: '활성화 여부',
+    example: true,
+  })
+  is_active: boolean;
+}

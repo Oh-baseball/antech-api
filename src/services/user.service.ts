@@ -21,6 +21,12 @@ import {
   AuthResultDto,
   WalletInfoDto,
 } from '../entities/user.entity';
+import {
+  CreatePaymentMethodDto,
+  UpdatePaymentMethodDto,
+  PaymentMethodDto,
+  PaymentProviderDto,
+} from '../dto/user.dto';
 
 @Injectable()
 export class UserService {
@@ -468,5 +474,309 @@ export class UserService {
     }
 
     return data?.length || 0;
+  }
+
+  /* -------------------------------------------------------------
+     결제 수단 관리
+  ------------------------------------------------------------- */
+
+  // 결제 수단 등록
+  async createPaymentMethod(
+    createPaymentMethodDto: CreatePaymentMethodDto,
+  ): Promise<PaymentMethodDto> {
+    const {
+      user_id,
+      provider_id,
+      masked_number,
+      card_company,
+      bank_name,
+      payment_token,
+      alias_name,
+      is_default = false,
+    } = createPaymentMethodDto;
+
+    // 사용자 존재 여부 확인
+    const user = await this.findUserById(user_id);
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 기본 결제 수단으로 설정할 경우 기존 기본 결제 수단 해제
+    if (is_default) {
+      await this.supabase
+        .from('user_payment_methods')
+        .update({ is_default: false })
+        .eq('user_id', user_id)
+        .eq('is_default', true);
+    }
+
+    const { data: paymentMethod, error } = await this.supabase
+      .from('user_payment_methods')
+      .insert({
+        user_id,
+        provider_id,
+        masked_number,
+        card_company,
+        bank_name,
+        payment_token,
+        alias_name,
+        is_default,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`결제 수단 등록 실패: ${error.message}`);
+    }
+
+    return paymentMethod;
+  }
+
+  // 사용자 결제 수단 목록 조회
+  async getUserPaymentMethods(userId: number): Promise<PaymentMethodDto[]> {
+    const { data: paymentMethods, error } = await this.supabase
+      .from('user_payment_methods')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`결제 수단 목록 조회 실패: ${error.message}`);
+    }
+
+    return paymentMethods || [];
+  }
+
+  // 특정 결제 수단 조회
+  async getPaymentMethod(
+    userId: number,
+    methodId: number,
+  ): Promise<PaymentMethodDto> {
+    const { data: paymentMethod, error } = await this.supabase
+      .from('user_payment_methods')
+      .select('*')
+      .eq('method_id', methodId)
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !paymentMethod) {
+      throw new NotFoundException('결제 수단을 찾을 수 없습니다.');
+    }
+
+    return paymentMethod;
+  }
+
+  // 결제 수단 수정
+  async updatePaymentMethod(
+    userId: number,
+    methodId: number,
+    updatePaymentMethodDto: UpdatePaymentMethodDto,
+  ): Promise<PaymentMethodDto> {
+    // 결제 수단 존재 여부 확인
+    await this.getPaymentMethod(userId, methodId);
+
+    const {
+      masked_number,
+      card_company,
+      bank_name,
+      payment_token,
+      alias_name,
+      is_default,
+      is_active,
+    } = updatePaymentMethodDto;
+
+    // 기본 결제 수단으로 설정할 경우 기존 기본 결제 수단 해제
+    if (is_default === true) {
+      await this.supabase
+        .from('user_payment_methods')
+        .update({ is_default: false })
+        .eq('user_id', userId)
+        .eq('is_default', true)
+        .neq('method_id', methodId);
+    }
+
+    const { data: updatedPaymentMethod, error } = await this.supabase
+      .from('user_payment_methods')
+      .update({
+        ...(masked_number !== undefined && { masked_number }),
+        ...(card_company !== undefined && { card_company }),
+        ...(bank_name !== undefined && { bank_name }),
+        ...(payment_token !== undefined && { payment_token }),
+        ...(alias_name !== undefined && { alias_name }),
+        ...(is_default !== undefined && { is_default }),
+        ...(is_active !== undefined && { is_active }),
+      })
+      .eq('method_id', methodId)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error || !updatedPaymentMethod) {
+      throw new Error(`결제 수단 수정 실패: ${error.message}`);
+    }
+
+    return updatedPaymentMethod;
+  }
+
+  // 결제 수단 삭제 (논리적 삭제)
+  async deletePaymentMethod(userId: number, methodId: number): Promise<void> {
+    // 결제 수단 존재 여부 확인
+    const paymentMethod = await this.getPaymentMethod(userId, methodId);
+
+    const { error } = await this.supabase
+      .from('user_payment_methods')
+      .update({ is_active: false })
+      .eq('method_id', methodId)
+      .eq('user_id', userId);
+
+    if (error) {
+      throw new Error(`결제 수단 삭제 실패: ${error.message}`);
+    }
+
+    // 삭제된 결제 수단이 기본 결제 수단이었다면, 다른 결제 수단을 기본으로 설정
+    if (paymentMethod.is_default) {
+      const remainingMethods = await this.getUserPaymentMethods(userId);
+      if (remainingMethods.length > 0) {
+        await this.setDefaultPaymentMethod(
+          userId,
+          remainingMethods[0].method_id,
+        );
+      }
+    }
+  }
+
+  // 기본 결제 수단 설정
+  async setDefaultPaymentMethod(
+    userId: number,
+    methodId: number,
+  ): Promise<PaymentMethodDto> {
+    // 결제 수단 존재 여부 확인
+    await this.getPaymentMethod(userId, methodId);
+
+    // 기존 기본 결제 수단 해제
+    await this.supabase
+      .from('user_payment_methods')
+      .update({ is_default: false })
+      .eq('user_id', userId)
+      .eq('is_default', true);
+
+    // 새로운 기본 결제 수단 설정
+    const { data: updatedPaymentMethod, error } = await this.supabase
+      .from('user_payment_methods')
+      .update({ is_default: true })
+      .eq('method_id', methodId)
+      .eq('user_id', userId)
+      .select()
+      .single();
+
+    if (error || !updatedPaymentMethod) {
+      throw new Error(`기본 결제 수단 설정 실패: ${error.message}`);
+    }
+
+    return updatedPaymentMethod;
+  }
+
+  // 결제 업체 목록 조회
+  async getPaymentProviders(): Promise<PaymentProviderDto[]> {
+    // 실제로는 DB에서 조회하지만, 여기서는 하드코딩된 목록 반환
+    const providers: PaymentProviderDto[] = [
+      {
+        provider_id: 'card_001',
+        provider_name: '신용카드',
+        payment_type: 'CARD',
+        logo_url: 'https://example.com/logos/card.png',
+        is_active: true,
+      },
+      {
+        provider_id: 'bank_001',
+        provider_name: '계좌이체',
+        payment_type: 'BANK_TRANSFER',
+        logo_url: 'https://example.com/logos/bank.png',
+        is_active: true,
+      },
+      {
+        provider_id: 'kakao_001',
+        provider_name: '카카오페이',
+        payment_type: 'MOBILE_PAY',
+        logo_url: 'https://example.com/logos/kakao.png',
+        is_active: true,
+      },
+      {
+        provider_id: 'naver_001',
+        provider_name: '네이버페이',
+        payment_type: 'MOBILE_PAY',
+        logo_url: 'https://example.com/logos/naver.png',
+        is_active: true,
+      },
+      {
+        provider_id: 'toss_001',
+        provider_name: '토스페이',
+        payment_type: 'MOBILE_PAY',
+        logo_url: 'https://example.com/logos/toss.png',
+        is_active: true,
+      },
+      {
+        provider_id: 'point_001',
+        provider_name: '포인트',
+        payment_type: 'POINT',
+        logo_url: 'https://example.com/logos/point.png',
+        is_active: true,
+      },
+    ];
+
+    return providers.filter((provider) => provider.is_active);
+  }
+
+  // 개발용: 테스트 결제 수단 생성
+  async generateTestPaymentMethods(
+    userId: number,
+  ): Promise<PaymentMethodDto[]> {
+    // 사용자 존재 여부 확인
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    const testMethods = [
+      {
+        user_id: userId,
+        provider_id: 'card_001',
+        masked_number: '**** **** **** 1234',
+        card_company: '신한카드',
+        alias_name: '메인 카드',
+        is_default: true,
+      },
+      {
+        user_id: userId,
+        provider_id: 'card_001',
+        masked_number: '**** **** **** 5678',
+        card_company: '국민카드',
+        alias_name: '서브 카드',
+        is_default: false,
+      },
+      {
+        user_id: userId,
+        provider_id: 'kakao_001',
+        alias_name: '카카오페이',
+        is_default: false,
+      },
+    ];
+
+    const createdMethods: PaymentMethodDto[] = [];
+
+    for (const method of testMethods) {
+      try {
+        const created = await this.createPaymentMethod(method);
+        createdMethods.push(created);
+      } catch (error) {
+        console.error('테스트 결제 수단 생성 실패:', error);
+      }
+    }
+
+    return createdMethods;
   }
 }

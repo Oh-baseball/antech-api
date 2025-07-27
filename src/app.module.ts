@@ -12,6 +12,7 @@ import { DatabaseConfig } from './config/database.config';
 import { UserController } from './controllers/user.controller';
 import { StoreController } from './controllers/store.controller';
 import { OrderController } from './controllers/order.controller';
+import { PaymentMethodsController } from './controllers/payment-methods.controller';
 
 // 서비스
 import { UserService } from './services/user.service';
@@ -35,6 +36,7 @@ import { AllExceptionsFilter } from './filters/http-exception.filter';
     UserController,
     StoreController,
     OrderController,
+    PaymentMethodsController,
   ],
   providers: [
     AppService,
