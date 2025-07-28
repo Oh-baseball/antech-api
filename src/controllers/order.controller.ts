@@ -100,7 +100,7 @@ export class OrderController {
   ------------------------------------------------------------- */
 
   @Post('payment')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: '결제 처리',
     description: '주문에 대한 결제를 처리합니다.',
