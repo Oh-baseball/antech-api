@@ -2,15 +2,18 @@ services:
   app:
     build: .
     container_name: nestjs-app
+    ports:
+      - '8000:8000' # 앱 포트 직접 노출 (개발용)
     networks:
       - app-network
     env_file:
       - .env
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development # 개발 모드로 변경
       - PORT=8000
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - API_URL=${API_URL} # 환경변수로 처리
 
   nginx:
     image: nginx:alpine
