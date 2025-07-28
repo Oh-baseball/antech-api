@@ -178,22 +178,39 @@ export class StoreService {
 
   // 모든 카테고리 조회
   async findAllCategories(): Promise<Category[]> {
-    console.log('Fetching all categories...');
+    console.log('🔍 Fetching all categories...');
+    console.log(
+      '🔗 Supabase URL:',
+      process.env.SUPABASE_URL ? 'Set' : 'Not set',
+    );
+    console.log(
+      '🔑 Supabase Key:',
+      process.env.SUPABASE_ANON_KEY ? 'Set' : 'Not set',
+    );
 
-    const { data: categories, error } = await this.supabase
-      .from('category')
-      .select('*')
-      .eq('is_active', true)
-      .order('category_name');
+    try {
+      const { data: categories, error } = await this.supabase
+        .from('category')
+        .select('*')
+        .eq('is_active', true)
+        .order('category_name');
 
-    console.log('Categories query result:', { categories, error });
+      console.log('📊 Categories query result:', {
+        categoriesCount: categories?.length || 0,
+        error: error?.message || 'No error',
+        categories: categories?.slice(0, 2), // 처음 2개만 로그
+      });
 
-    if (error) {
-      console.error('Category fetch error:', error);
-      throw new Error(`카테고리 목록 조회 실패: ${error.message}`);
+      if (error) {
+        console.error('❌ Category fetch error:', error);
+        throw new Error(`카테고리 목록 조회 실패: ${error.message}`);
+      }
+
+      return categories || [];
+    } catch (err) {
+      console.error('💥 Unexpected error in findAllCategories:', err);
+      throw err;
     }
-
-    return categories || [];
   }
 
   // 카테고리 정보 수정
@@ -451,5 +468,20 @@ export class StoreService {
     }
 
     return menus || [];
+  }
+
+  // 임시 테스트 메서드 추가
+  async testCategoryTable(): Promise<any> {
+    try {
+      // 테이블 구조 확인
+      const { data, error } = await this.supabase
+        .from('category')
+        .select('*')
+        .limit(1);
+
+      return { data, error, message: 'Table test' };
+    } catch (err) {
+      return { error: err.message, message: 'Table access failed' };
+    }
   }
 }
