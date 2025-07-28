@@ -215,20 +215,25 @@ export class OrderService {
     return this.getOrderSummary(order_id);
   }
 
-  // 주문 조회 (상세)
-  async getOrderSummary(orderId: string): Promise<OrderSummaryDto> {
-    // 주문 기본 정보
-    const { data: order, error: orderError } = await this.supabase
+  // 주문 상세 조회 (기본 정보)
+  async getOrder(orderId: string): Promise<Order> {
+    const { data: order, error } = await this.supabase
       .from('orders')
       .select('*')
       .eq('order_id', orderId)
       .single();
 
-    if (orderError || !order) {
+    if (error || !order) {
       throw new NotFoundException('주문을 찾을 수 없습니다.');
     }
 
-    // 주문 상품 정보
+    return order;
+  }
+
+  // 주문 상세 조회 (요약 정보 포함)
+  async getOrderSummary(orderId: string): Promise<OrderSummaryDto> {
+    const order = await this.getOrder(orderId); // getOrder 재사용
+
     const { data: items, error: itemsError } = await this.supabase
       .from('order_items')
       .select(
@@ -321,6 +326,15 @@ export class OrderService {
       point_used = 0,
     } = createPaymentDto;
 
+    console.log('=== 결제 처리 시작 ===');
+    console.log('결제 요청 데이터:', {
+      order_id,
+      user_id,
+      payment_amount,
+      point_used,
+      payment_method,
+    });
+
     // 주문 확인
     const { data: order, error: orderError } = await this.supabase
       .from('orders')
@@ -329,23 +343,59 @@ export class OrderService {
       .single();
 
     if (orderError || !order) {
+      console.error('주문 조회 실패:', orderError);
       throw new NotFoundException('주문을 찾을 수 없습니다.');
     }
 
+    console.log('주문 정보:', {
+      order_id: order.order_id,
+      final_amount: order.final_amount,
+      order_status: order.order_status,
+      point_used: order.point_used,
+    });
+
     if (order.order_status !== 'PENDING') {
+      console.error('주문 상태 오류:', order.order_status);
       throw new BadRequestException('이미 처리된 주문입니다.');
     }
 
-    // 결제 금액 검증
-    if (payment_amount + point_used !== order.final_amount) {
-      throw new BadRequestException('결제 금액이 올바르지 않습니다.');
+    // 결제 금액 검증 (total_amount 기준으로 변경)
+    if (payment_amount + point_used !== order.total_amount) {
+      throw new BadRequestException(
+        `결제 금액이 올바르지 않습니다. 요청된 금액: ${payment_amount + point_used}, 주문 총액: ${order.total_amount}`,
+      );
     }
 
-    // 포인트 사용 시 잔액 확인
+    // 포인트 사용 시 잔액 확인 및 자동 지갑 생성
     if (point_used > 0) {
-      const userBalance = await this.getUserPointBalance(user_id);
-      if (userBalance < point_used) {
-        throw new BadRequestException('포인트 잔액이 부족합니다.');
+      try {
+        const userBalance = await this.getUserPointBalance(user_id);
+        console.log('사용자 포인트 잔액:', userBalance);
+
+        if (userBalance < point_used) {
+          console.error('포인트 잔액 부족:', {
+            available: userBalance,
+            requested: point_used,
+            shortage: point_used - userBalance,
+          });
+          throw new BadRequestException(
+            `포인트 잔액이 부족합니다. 보유: ${userBalance}원, 사용 요청: ${point_used}원`,
+          );
+        }
+      } catch (error) {
+        if (error.message.includes('사용자 지갑을 찾을 수 없습니다')) {
+          console.log('사용자 지갑이 없어서 자동 생성합니다.');
+          await this.createUserWalletIfNotExists(user_id);
+
+          // 새로 생성된 지갑은 잔액이 0이므로 포인트 사용 불가
+          if (point_used > 0) {
+            throw new BadRequestException(
+              '새로 생성된 지갑에는 포인트가 없습니다. 포인트 사용 없이 다시 시도해주세요.',
+            );
+          }
+        } else {
+          throw error;
+        }
       }
     }
 
@@ -409,18 +459,32 @@ export class OrderService {
         paid_at: payment.paid_at,
       };
     } catch (error) {
-      // 결제 실패 처리
-      await this.supabase.from('payment_history').insert({
+      console.error('=== 결제 처리 실패 ===');
+      console.error('에러 정보:', {
+        message: error.message,
+        stack: error.stack,
         payment_id,
         order_id,
         user_id,
-        method_id,
-        payment_amount,
-        point_used,
-        point_earned: 0,
-        payment_status: PaymentStatus.FAILED,
-        payment_method,
       });
+
+      // 결제 실패 처리
+      try {
+        await this.supabase.from('payment_history').insert({
+          payment_id,
+          order_id,
+          user_id,
+          method_id,
+          payment_amount,
+          point_used,
+          point_earned: 0,
+          payment_status: PaymentStatus.FAILED,
+          payment_method,
+        });
+        console.log('결제 실패 내역이 저장되었습니다.');
+      } catch (insertError) {
+        console.error('결제 실패 내역 저장 실패:', insertError);
+      }
 
       throw new BadRequestException(`결제 처리 실패: ${error.message}`);
     }
@@ -580,12 +644,45 @@ export class OrderService {
     return `PAY${timestamp}${random}`;
   }
 
+  // 사용자 지갑 자동 생성
+  private async createUserWalletIfNotExists(userId: number): Promise<void> {
+    try {
+      const { data: existingWallet } = await this.supabase
+        .from('user_wallet')
+        .select('user_id')
+        .eq('user_id', userId)
+        .single();
+
+      if (existingWallet) {
+        return; // 이미 지갑이 있음
+      }
+    } catch (error) {
+      // 지갑이 없으면 생성
+    }
+
+    const { error } = await this.supabase.from('user_wallet').insert({
+      user_id: userId,
+      point_balance: 0,
+      total_earned_points: 0,
+      total_used_points: 0,
+    });
+
+    if (error) {
+      console.error('지갑 생성 실패:', error);
+      throw new Error(`지갑 생성 실패: ${error.message}`);
+    }
+
+    console.log(`사용자 ${userId}의 지갑이 자동 생성되었습니다.`);
+  }
+
   // 외부 결제 처리 (모의)
   private async processExternalPayment(
     paymentMethod: PaymentType,
     amount: number,
     methodId?: number,
   ): Promise<{ transactionId: string }> {
+    console.log('외부 결제 처리 시작:', { paymentMethod, amount, methodId });
+
     // 실제로는 각 결제사 API 연동
     // 여기서는 모의 처리
 
@@ -596,13 +693,17 @@ export class OrderService {
     // 결제 처리 시뮬레이션 (1초 대기)
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // 5% 확률로 결제 실패 시뮬레이션
-    if (Math.random() < 0.05) {
+    // 개발 환경에서는 실패 확률을 1%로 낮춤 (운영 환경에서는 5%)
+    const failureRate = process.env.NODE_ENV === 'development' ? 0.01 : 0.05;
+
+    if (Math.random() < failureRate) {
+      console.error('외부 결제 처리 실패 (시뮬레이션)');
       throw new Error('외부 결제 처리 실패');
     }
 
-    return {
-      transactionId: `EXT_${paymentMethod}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
-    };
+    const transactionId = `EXT_${paymentMethod}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    console.log('외부 결제 성공:', transactionId);
+
+    return { transactionId };
   }
 }
