@@ -99,15 +99,20 @@ export class UserService {
     return user;
   }
 
-  // 사용자 조회 (이메일)
+  // 사용자 조회 (이메일) - 디버깅 버전
   async findUserByEmail(email: string): Promise<User> {
+    console.log('Finding user by email:', email);
+
     const { data: user, error } = await this.supabase
       .from('users')
       .select('*')
       .eq('email', email)
       .single();
 
+    console.log('Supabase response:', { user, error });
+
     if (error || !user) {
+      console.error('User not found or error:', error);
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
 

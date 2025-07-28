@@ -13,7 +13,7 @@ services:
       - PORT=8000
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
-      - API_URL=http://ec2-13-124-220-25.ap-northeast-2.compute.amazonaws.com
+      - API_URL=${API_URL} # 환경변수로 변경
 
   nginx:
     image: nginx:alpine
