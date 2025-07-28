@@ -1,0 +1,97 @@
+name: 🎬 Deploy Movie API to EC2
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: 📚 Install dependencies
+        run: |
+          cd the-movie-api
+          pnpm install --frozen-lockfile
+
+      - name: 🔨 Build project
+        run: |
+          cd the-movie-api
+          pnpm run build
+
+      - name: 🧪 Run tests
+        run: |
+          cd the-movie-api
+          pnpm run test
+
+  deploy:
+    name: 🚀 Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🚀 Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🎬 Starting Movie API deployment..."
+
+            # 프로젝트 디렉토리로 이동
+            cd ~/TheMovieApi/the-movie-api
+
+            # 최신 코드 가져오기
+            echo "📥 Pulling latest code..."
+            git pull origin main
+
+            # 환경변수 파일 확인
+            if [ ! -f .env ]; then
+              echo "❌ .env file not found!"
+              exit 1
+            fi
+
+            # 기존 컨테이너 중지 및 제거
+            echo "🛑 Stopping existing containers..."
+            docker-compose -f docker-compose.prod.yml down
+
+            # 이미지 정리 (선택사항)
+            echo "🧹 Cleaning up old images..."
+            docker system prune -f
+
+            # 새로운 이미지 빌드 및 컨테이너 시작
+            echo "🔨 Building and starting containers..."
+            docker-compose -f docker-compose.prod.yml up -d --build
+
+            # 컨테이너 상태 확인
+            echo "✅ Checking container status..."
+            docker-compose -f docker-compose.prod.yml ps
+
+            # 헬스체크
+            echo "🏥 Health check..."
+            sleep 30
+            curl -f http://localhost/health || echo "⚠️ Health check failed"
+
+            echo "🎉 Deployment completed!"
