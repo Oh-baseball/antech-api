@@ -326,10 +326,15 @@ export class OrderService {
       point_used = 0,
     } = createPaymentDto;
 
+    // 포인트 결제 시 method_id를 null로 강제하여 외래 키 오류 방지
+    const finalMethodId =
+      payment_method === PaymentType.POINT ? null : method_id;
+
     console.log('=== 결제 처리 시작 ===');
     console.log('결제 요청 데이터:', {
       order_id,
       user_id,
+      method_id: finalMethodId, // 수정된 부분
       payment_amount,
       point_used,
       payment_method,
@@ -403,11 +408,11 @@ export class OrderService {
     const payment_id = await this.generatePaymentId();
 
     try {
-      // 외부 결제 처리 (실제로는 결제 게이트웨이 연동)
+      // 외부 결제 처리
       const externalResult = await this.processExternalPayment(
         payment_method,
         payment_amount,
-        method_id,
+        finalMethodId, // 수정된 부분
       );
 
       // 결제 내역 생성
@@ -417,7 +422,7 @@ export class OrderService {
           payment_id,
           order_id,
           user_id,
-          method_id,
+          method_id: finalMethodId, // 수정된 부분
           payment_amount,
           point_used,
           point_earned: Math.floor(payment_amount * 0.01), // 1% 적립
@@ -474,7 +479,7 @@ export class OrderService {
           payment_id,
           order_id,
           user_id,
-          method_id,
+          method_id: finalMethodId, // 수정된 부분
           payment_amount,
           point_used,
           point_earned: 0,
@@ -679,7 +684,7 @@ export class OrderService {
   private async processExternalPayment(
     paymentMethod: PaymentType,
     amount: number,
-    methodId?: number,
+    methodId?: number | null, // null 타입을 허용하도록 수정
   ): Promise<{ transactionId: string }> {
     console.log('외부 결제 처리 시작:', { paymentMethod, amount, methodId });
 
