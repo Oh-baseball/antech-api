@@ -107,12 +107,15 @@ async function bootstrap() {
     .addTag('💰 payments', '결제 - 결제 처리, 결제 내역')
     .addTag('🎯 points', '포인트 - 적립, 사용, 잔액 조회')
     .addTag('💳 payment-methods', '결제수단 - 카드, 계좌, 간편결제 관리')
-    .addServer('http://localhost:8000', '로컬 개발 서버')
-    .addServer('https://api.movie-pay.com', '프로덕션 서버')
-    .build();
+    .addServer('http://localhost:8000', '로컬 개발 서버');
+
+  // 프로덕션 URL이 설정되어 있을 때만 추가
+  if (process.env.API_URL) {
+    config.addServer(process.env.API_URL, '프로덕션 서버');
+  }
 
   // Swagger 문서 생성
-  const document = SwaggerModule.createDocument(app, config, {
+  const document = SwaggerModule.createDocument(app, config.build(), {
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
     deepScanRoutes: true,
   });
