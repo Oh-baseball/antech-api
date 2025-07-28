@@ -24,10 +24,10 @@ jobs:
           version: 8
 
       - name: 📚 Install dependencies
-        run: pnpm install --frozen-lockfile # cd 제거
+        run: pnpm install --no-frozen-lockfile # frozen-lockfile 제거
 
       - name: 🔨 Build project
-        run: pnpm run build # cd 제거
+        run: pnpm run build
 
   deploy:
     name: 🚀 Deploy to EC2
@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            cd ~/TheMovieApi/the-movie-api  # EC2에서의 실제 경로
+            cd ~/TheMovieApi/the-movie-api
             git pull origin main
             docker-compose -f docker-compose.prod.yml down
             docker-compose -f docker-compose.prod.yml up -d --build
