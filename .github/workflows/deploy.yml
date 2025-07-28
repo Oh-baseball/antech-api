@@ -10,9 +10,6 @@ jobs:
   test:
     name: 🧪 Run Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./the-movie-api
 
     steps:
       - name: 📥 Checkout code
@@ -29,13 +26,19 @@ jobs:
           version: 8
 
       - name: 📚 Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          cd the-movie-api
+          pnpm install --frozen-lockfile
 
       - name: 🔨 Build project
-        run: pnpm run build
+        run: |
+          cd the-movie-api
+          pnpm run build
 
       - name: 🧪 Run tests
-        run: pnpm run test
+        run: |
+          cd the-movie-api
+          pnpm run test
 
   deploy:
     name: 🚀 Deploy to EC2
