@@ -178,13 +178,18 @@ export class StoreService {
 
   // 모든 카테고리 조회
   async findAllCategories(): Promise<Category[]> {
+    console.log('Fetching all categories...');
+
     const { data: categories, error } = await this.supabase
       .from('category')
       .select('*')
       .eq('is_active', true)
       .order('category_name');
 
+    console.log('Categories query result:', { categories, error });
+
     if (error) {
+      console.error('Category fetch error:', error);
       throw new Error(`카테고리 목록 조회 실패: ${error.message}`);
     }
 
