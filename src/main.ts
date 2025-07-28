@@ -69,7 +69,9 @@ async function bootstrap() {
         '```\n' +
         'POST /orders → 주문 생성\n' +
         'POST /orders/payment → 결제 처리\n' +
+        'POST /orders/authenticate-and-pay → 인증 후 결제 처리 (PIN/패턴/생체인증)\n' +
         'GET /orders/users/{userId} → 주문 내역\n' +
+        'GET /orders/payment/user/{userId} → 결제 내역\n' +
         '```\n\n' +
         '#### 5️⃣ **포인트 관리**\n' +
         '```\n' +
@@ -227,6 +229,7 @@ async function bootstrap() {
   console.log(`   • 매장 목록: GET /stores`);
   console.log(`   • 주문 생성: POST /orders`);
   console.log(`   • 결제 처리: POST /orders/payment`);
+  console.log(`   • 인증 후 결제: POST /orders/authenticate-and-pay`);
   console.log('');
   console.log('🛠️ **개발용 테스트 API**:');
   console.log(`   • 테스트 매장: POST /stores/dev/generate-test-stores`);

@@ -26,6 +26,8 @@ import {
   UpdatePaymentMethodDto,
   PaymentMethodDto,
   PaymentProviderDto,
+  ChargePointsDto,
+  PointChargeResultDto,
 } from '../dto/user.dto';
 
 @Injectable()
@@ -787,5 +789,152 @@ export class UserService {
     }
 
     return createdMethods;
+  }
+
+  /* -------------------------------------------------------------
+   포인트 충전 관리
+------------------------------------------------------------- */
+
+  // 포인트 충전
+  async chargePoints(
+    chargePointsDto: ChargePointsDto,
+  ): Promise<PointChargeResultDto> {
+    const { user_id, charge_amount, method_id, payment_method } =
+      chargePointsDto;
+
+    // 사용자 존재 확인
+    const user = await this.findUserById(user_id);
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 결제 수단 확인
+    const paymentMethodData = await this.getPaymentMethod(user_id, method_id);
+    if (!paymentMethodData) {
+      throw new NotFoundException('결제 수단을 찾을 수 없습니다.');
+    }
+
+    // 충전 ID 생성
+    const charge_id = `CHG_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}_${String(Date.now()).slice(-6)}`;
+
+    try {
+      // 외부 결제 처리 (실제로는 결제 게이트웨이 연동)
+      const externalResult = await this.processExternalPaymentForCharge(
+        payment_method,
+        charge_amount,
+        method_id,
+      );
+
+      // 포인트 충전 내역 생성
+      const { data: chargeHistory, error: chargeError } = await this.supabase
+        .from('point_charge_history')
+        .insert({
+          charge_id,
+          user_id,
+          method_id,
+          charge_amount,
+          charge_status: 'COMPLETED',
+          payment_method,
+          external_transaction_id: externalResult.transactionId,
+          charged_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (chargeError) {
+        throw new Error(`포인트 충전 내역 생성 실패: ${chargeError.message}`);
+      }
+
+      // 현재 지갑 정보 조회
+      const currentWallet = await this.getUserWallet(user_id);
+
+      // 사용자 지갑 포인트 업데이트
+      const { data: wallet, error: walletError } = await this.supabase
+        .from('user_wallet')
+        .update({
+          point_balance: currentWallet.point_balance + charge_amount,
+          total_earned_points:
+            currentWallet.total_earned_points + charge_amount,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user_id)
+        .select()
+        .single();
+
+      if (walletError) {
+        throw new Error(`지갑 업데이트 실패: ${walletError.message}`);
+      }
+
+      // 포인트 거래 내역 추가
+      await this.supabase.from('point_transactions').insert({
+        user_id,
+        transaction_type: 'CHARGE',
+        amount: charge_amount,
+        description: `포인트 충전 - ${payment_method}`,
+        reference_id: charge_id,
+        created_at: new Date().toISOString(),
+      });
+
+      return {
+        charge_id: chargeHistory.charge_id,
+        charge_amount: chargeHistory.charge_amount,
+        new_balance: wallet.point_balance,
+        charge_status: chargeHistory.charge_status,
+        external_transaction_id: chargeHistory.external_transaction_id,
+        charged_at: chargeHistory.charged_at,
+      };
+    } catch (error) {
+      // 충전 실패 내역 기록
+      await this.supabase.from('point_charge_history').insert({
+        charge_id,
+        user_id,
+        method_id,
+        charge_amount,
+        charge_status: 'FAILED',
+        payment_method,
+        charged_at: new Date().toISOString(),
+      });
+
+      throw new Error(`포인트 충전 실패: ${error.message}`);
+    }
+  }
+
+  // 포인트 충전 내역 조회
+  async getPointChargeHistory(userId: number): Promise<any[]> {
+    const { data: chargeHistory, error } = await this.supabase
+      .from('point_charge_history')
+      .select(
+        `
+      *,
+      payment_method:method_id(alias_name, masked_number, card_company)
+    `,
+      )
+      .eq('user_id', userId)
+      .order('charged_at', { ascending: false });
+
+    if (error) {
+      throw new Error(`포인트 충전 내역 조회 실패: ${error.message}`);
+    }
+
+    return chargeHistory || [];
+  }
+
+  // 외부 결제 처리 (충전용)
+  private async processExternalPaymentForCharge(
+    paymentMethod: string,
+    amount: number,
+    methodId?: number,
+  ): Promise<{ transactionId: string }> {
+    // 결제 처리 시뮬레이션 (1초 대기)
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // 5% 확률로 결제 실패 시뮬레이션
+    if (Math.random() < 0.05) {
+      throw new Error('외부 결제 처리 실패');
+    }
+
+    return {
+      transactionId: `CHG_${paymentMethod}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+    };
   }
 }

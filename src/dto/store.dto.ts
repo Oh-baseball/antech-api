@@ -14,7 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PaymentType } from '../entities/user.entity';
+import { PaymentType, AuthType } from '../entities/user.entity';
 
 /* -------------------------------------------------------------
    매장 관련 DTO
@@ -377,3 +377,171 @@ export class CreateOrderDto {
 }
 
 export { OrderSummaryDto, PaymentResultDto } from '../entities/store.entity';
+
+/* -------------------------------------------------------------
+   인증 후 결제 관련 DTO
+------------------------------------------------------------- */
+
+export class AuthenticateAndPayDto {
+  // 인증 정보
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({
+    description: '인증 타입',
+    example: AuthType.PIN,
+    enum: AuthType,
+  })
+  @IsEnum(AuthType)
+  auth_type: AuthType;
+
+  @ApiProperty({
+    description: '인증 값 (PIN 번호 또는 패턴 시퀀스)',
+    example: '123456',
+  })
+  @IsString()
+  auth_value: string;
+
+  @ApiProperty({
+    description: '디바이스 정보',
+    example: 'iPhone 15 Pro, iOS 17.0',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  device_info?: string;
+
+  // 결제 정보
+  @ApiProperty({
+    description: '주문 ID',
+    example: 'ORD_20241201_123456',
+  })
+  @IsString()
+  order_id: string;
+
+  @ApiProperty({
+    description: '결제 수단 ID',
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  method_id?: number;
+
+  @ApiProperty({
+    description: '결제 방법',
+    example: PaymentType.CARD,
+    enum: PaymentType,
+  })
+  @IsEnum(PaymentType)
+  payment_method: PaymentType;
+
+  @ApiProperty({
+    description: '결제 금액',
+    example: 15000,
+    minimum: 0,
+  })
+  @IsNumber()
+  @Min(0)
+  payment_amount: number;
+
+  @ApiProperty({
+    description: '사용할 포인트',
+    example: 1000,
+    required: false,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  point_used?: number;
+}
+
+export class AuthenticatedPaymentResultDto {
+  @ApiProperty({
+    description: '인증 성공 여부',
+    example: true,
+  })
+  auth_success: boolean;
+
+  @ApiProperty({
+    description: '결제 성공 여부',
+    example: true,
+  })
+  payment_success: boolean;
+
+  @ApiProperty({
+    description: '인증 결과 정보',
+  })
+  auth_result: any;
+
+  @ApiProperty({
+    description: '결제 결과 정보',
+    required: false,
+  })
+  payment_result?: any;
+
+  @ApiProperty({
+    description: '실패 사유',
+    example: '인증에 실패했습니다.',
+    required: false,
+  })
+  failure_reason?: string;
+}
+
+export class CreatePaymentDto {
+  @ApiProperty({
+    description: '주문 ID',
+    example: 'ORD_20241201_123456',
+  })
+  @IsString()
+  order_id: string;
+
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({
+    description: '결제 수단 ID',
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  method_id?: number;
+
+  @ApiProperty({
+    description: '결제 방법',
+    example: PaymentType.CARD,
+    enum: PaymentType,
+  })
+  @IsEnum(PaymentType)
+  payment_method: PaymentType;
+
+  @ApiProperty({
+    description: '결제 금액',
+    example: 15000,
+    minimum: 0,
+  })
+  @IsNumber()
+  @Min(0)
+  payment_amount: number;
+
+  @ApiProperty({
+    description: '사용할 포인트',
+    example: 1000,
+    required: false,
+    minimum: 0,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  point_used?: number;
+}

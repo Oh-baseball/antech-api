@@ -634,3 +634,81 @@ export class PaymentProviderDto {
   })
   is_active: boolean;
 }
+
+/* -------------------------------------------------------------
+   포인트 충전 관련 DTO
+------------------------------------------------------------- */
+
+export class ChargePointsDto {
+  @ApiProperty({
+    description: '사용자 ID',
+    example: 1,
+  })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({
+    description: '충전할 포인트 금액',
+    example: 50000,
+    minimum: 1000,
+    maximum: 1000000,
+  })
+  @IsNumber()
+  @Min(1000, { message: '최소 충전 금액은 1,000포인트입니다.' })
+  @Max(1000000, { message: '최대 충전 금액은 1,000,000포인트입니다.' })
+  charge_amount: number;
+
+  @ApiProperty({
+    description: '결제 수단 ID',
+    example: 1,
+  })
+  @IsNumber()
+  method_id: number;
+
+  @ApiProperty({
+    description: '결제 방식',
+    example: 'CARD',
+    enum: ['CARD', 'BANK_TRANSFER', 'MOBILE_PAY'],
+  })
+  @IsEnum(['CARD', 'BANK_TRANSFER', 'MOBILE_PAY'])
+  payment_method: string;
+}
+
+export class PointChargeResultDto {
+  @ApiProperty({
+    description: '충전 내역 ID',
+    example: 'CHG_20250128_001',
+  })
+  charge_id: string;
+
+  @ApiProperty({
+    description: '충전 금액',
+    example: 50000,
+  })
+  charge_amount: number;
+
+  @ApiProperty({
+    description: '충전 후 포인트 잔액',
+    example: 75000,
+  })
+  new_balance: number;
+
+  @ApiProperty({
+    description: '충전 상태',
+    example: 'COMPLETED',
+    enum: ['PENDING', 'COMPLETED', 'FAILED'],
+  })
+  charge_status: string;
+
+  @ApiProperty({
+    description: '외부 거래 ID',
+    example: 'EXT_CARD_1706418000_abc123',
+  })
+  external_transaction_id: string;
+
+  @ApiProperty({
+    description: '충전 완료 시간',
+    example: '2025-01-28T10:30:00Z',
+  })
+  charged_at: Date;
+}

@@ -20,17 +20,108 @@ import {
   PaymentType,
   PaymentStatus,
   PointTransactionType,
+  AuthType,
 } from '../entities/user.entity';
+import { UserService } from './user.service';
+import {
+  AuthenticateAndPayDto,
+  AuthenticatedPaymentResultDto,
+} from '../dto/store.dto';
 
 @Injectable()
 export class OrderService {
   private supabase: SupabaseClient;
 
-  constructor() {
+  constructor(private readonly userService: UserService) {
     this.supabase = createClient(
       process.env.SUPABASE_URL || '',
       process.env.SUPABASE_ANON_KEY || '',
     );
+  }
+
+  /* -------------------------------------------------------------
+     인증 후 결제 처리
+  ------------------------------------------------------------- */
+
+  // 인증 후 결제 처리
+  async authenticateAndPay(
+    authenticateAndPayDto: AuthenticateAndPayDto,
+  ): Promise<AuthenticatedPaymentResultDto> {
+    const {
+      // 인증 정보
+      user_id,
+      auth_type,
+      auth_value,
+      device_info,
+      // 결제 정보
+      order_id,
+      method_id,
+      payment_method,
+      payment_amount,
+      point_used = 0,
+    } = authenticateAndPayDto;
+
+    try {
+      // 1단계: 사용자 인증
+      const authResult = await this.userService.authenticate({
+        user_id,
+        auth_type,
+        auth_value,
+        device_info,
+      });
+
+      if (!authResult.is_success) {
+        return {
+          auth_success: false,
+          payment_success: false,
+          auth_result: authResult,
+          failure_reason: this.getAuthFailureMessage(authResult.failure_reason),
+        };
+      }
+
+      // 2단계: 결제 처리
+      const paymentResult = await this.processPayment({
+        order_id,
+        user_id,
+        method_id,
+        payment_method,
+        payment_amount,
+        point_used,
+      });
+
+      return {
+        auth_success: true,
+        payment_success: true,
+        auth_result: authResult,
+        payment_result: paymentResult,
+      };
+    } catch (error) {
+      // 인증은 성공했지만 결제에서 실패한 경우
+      return {
+        auth_success: true,
+        payment_success: false,
+        auth_result: { is_success: true },
+        failure_reason: `결제 처리 실패: ${error.message}`,
+      };
+    }
+  }
+
+  // 인증 실패 메시지 변환
+  private getAuthFailureMessage(failureReason?: string): string {
+    switch (failureReason) {
+      case 'WRONG_PIN':
+        return 'PIN 번호가 올바르지 않습니다.';
+      case 'WRONG_PATTERN':
+        return '패턴이 올바르지 않습니다.';
+      case 'BIOMETRIC_NOT_ENABLED':
+        return '생체인증이 활성화되지 않았습니다.';
+      case 'ACCOUNT_LOCKED':
+        return '계정이 잠겨있습니다. 잠시 후 다시 시도해주세요.';
+      case 'INVALID_AUTH_TYPE':
+        return '지원하지 않는 인증 방식입니다.';
+      default:
+        return '인증에 실패했습니다.';
+    }
   }
 
   /* -------------------------------------------------------------

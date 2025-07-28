@@ -7,13 +7,17 @@ import {
   Body,
   Param,
   ParseIntPipe,
-  HttpCode,
   HttpStatus,
+  HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
-import { CreateOrderDto } from '../dto/store.dto';
-import { CreatePaymentDto } from '../entities/store.entity';
+import {
+  CreateOrderDto,
+  CreatePaymentDto,
+  AuthenticateAndPayDto,
+} from '../dto/store.dto';
 import { ResponseDto } from '../dto/response.dto';
 
 @ApiTags('📦 orders', '💰 payments', '🎯 points')
@@ -50,7 +54,7 @@ export class OrderController {
   @Get(':orderId')
   @ApiOperation({
     summary: '주문 조회',
-    description: '주문 상세 정보를 조회합니다.',
+    description: '특정 주문의 상세 정보를 조회합니다.',
   })
   @ApiParam({ name: 'orderId', description: '주문 ID' })
   @ApiResponse({
@@ -58,9 +62,7 @@ export class OrderController {
     description: '주문 조회 성공',
     type: ResponseDto,
   })
-  async getOrderSummary(
-    @Param('orderId') orderId: string,
-  ): Promise<ResponseDto> {
+  async getOrder(@Param('orderId') orderId: string): Promise<ResponseDto> {
     const order = await this.orderService.getOrderSummary(orderId);
 
     return {
@@ -72,13 +74,13 @@ export class OrderController {
 
   @Get('user/:userId')
   @ApiOperation({
-    summary: '사용자별 주문 내역',
-    description: '사용자의 모든 주문 내역을 조회합니다.',
+    summary: '사용자 주문 내역 조회',
+    description: '특정 사용자의 주문 내역을 조회합니다.',
   })
   @ApiParam({ name: 'userId', description: '사용자 ID' })
   @ApiResponse({
     status: 200,
-    description: '사용자별 주문 내역 조회 성공',
+    description: '사용자 주문 내역 조회 성공',
     type: ResponseDto,
   })
   async getUserOrders(
@@ -89,30 +91,7 @@ export class OrderController {
     return {
       success: true,
       data: orders,
-      message: '사용자별 주문 내역을 성공적으로 조회했습니다.',
-    };
-  }
-
-  @Get('store/:storeId')
-  @ApiOperation({
-    summary: '매장별 주문 내역',
-    description: '매장의 모든 주문 내역을 조회합니다.',
-  })
-  @ApiParam({ name: 'storeId', description: '매장 ID' })
-  @ApiResponse({
-    status: 200,
-    description: '매장별 주문 내역 조회 성공',
-    type: ResponseDto,
-  })
-  async getStoreOrders(
-    @Param('storeId', ParseIntPipe) storeId: number,
-  ): Promise<ResponseDto> {
-    const orders = await this.orderService.getStoreOrders(storeId);
-
-    return {
-      success: true,
-      data: orders,
-      message: '매장별 주문 내역을 성공적으로 조회했습니다.',
+      message: '사용자 주문 내역을 성공적으로 조회했습니다.',
     };
   }
 
@@ -144,49 +123,145 @@ export class OrderController {
     };
   }
 
-  @Get('payment/history/:userId')
+  @Post('authenticate-and-pay')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '인증 후 결제 처리',
+    description:
+      '사용자 인증(PIN, 패턴, 생체인증) 성공 시 바로 결제를 처리합니다. 보안이 중요한 결제에서 사용됩니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '인증 및 결제 처리 완료',
+    type: ResponseDto,
+    examples: {
+      success: {
+        summary: '인증 및 결제 성공',
+        value: {
+          success: true,
+          data: {
+            auth_success: true,
+            payment_success: true,
+            auth_result: {
+              is_success: true,
+              is_locked: false,
+            },
+            payment_result: {
+              payment_id: 'PAY_20241201_123456',
+              payment_status: 'COMPLETED',
+              payment_amount: 15000,
+              point_used: 1000,
+              point_earned: 150,
+              external_transaction_id: 'EXT_CARD_1733123456789_abc123',
+              paid_at: '2024-12-01T10:30:00.000Z',
+            },
+          },
+          message: '인증 및 결제가 성공적으로 완료되었습니다.',
+        },
+      },
+      auth_fail: {
+        summary: '인증 실패',
+        value: {
+          success: false,
+          data: {
+            auth_success: false,
+            payment_success: false,
+            auth_result: {
+              is_success: false,
+              failure_reason: 'WRONG_PIN',
+              remaining_attempts: 2,
+              is_locked: false,
+            },
+            failure_reason: 'PIN 번호가 올바르지 않습니다.',
+          },
+          message: '인증 또는 결제에 실패했습니다.',
+        },
+      },
+      payment_fail: {
+        summary: '인증 성공, 결제 실패',
+        value: {
+          success: false,
+          data: {
+            auth_success: true,
+            payment_success: false,
+            auth_result: {
+              is_success: true,
+              is_locked: false,
+            },
+            failure_reason: '결제 처리 실패: 포인트 잔액이 부족합니다.',
+          },
+          message: '인증 또는 결제에 실패했습니다.',
+        },
+      },
+    },
+  })
+  async authenticateAndPay(
+    @Body() authenticateAndPayDto: AuthenticateAndPayDto,
+  ): Promise<ResponseDto> {
+    const result = await this.orderService.authenticateAndPay(
+      authenticateAndPayDto,
+    );
+
+    return {
+      success: result.auth_success && result.payment_success,
+      data: result,
+      message:
+        result.auth_success && result.payment_success
+          ? '인증 및 결제가 성공적으로 완료되었습니다.'
+          : '인증 또는 결제에 실패했습니다.',
+    };
+  }
+
+  /* -------------------------------------------------------------
+     결제 내역 조회
+  ------------------------------------------------------------- */
+
+  @Get('payment/:paymentId')
   @ApiOperation({
     summary: '결제 내역 조회',
-    description: '사용자의 결제 내역을 조회합니다.',
+    description: '특정 결제의 상세 내역을 조회합니다.',
   })
-  @ApiParam({ name: 'userId', description: '사용자 ID' })
+  @ApiParam({ name: 'paymentId', description: '결제 ID' })
   @ApiResponse({
     status: 200,
     description: '결제 내역 조회 성공',
     type: ResponseDto,
   })
   async getPaymentHistory(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Param('paymentId') paymentId: string,
   ): Promise<ResponseDto> {
-    const paymentHistory = await this.orderService.getPaymentHistory(userId);
+    // paymentId를 이용해 특정 결제 내역을 조회하는 로직이 필요
+    // 현재는 사용자 ID로만 조회 가능하므로 임시로 에러 처리
+    throw new NotFoundException('특정 결제 내역 조회 기능은 구현 중입니다.');
 
+    // 이 부분은 실제로 실행되지 않음 (위에서 예외 발생)
     return {
-      success: true,
-      data: paymentHistory,
-      message: '결제 내역을 성공적으로 조회했습니다.',
+      success: false,
+      data: null,
+      message: '특정 결제 내역 조회 기능은 구현 중입니다.',
     };
   }
 
-  @Get('points/history/:userId')
+  @Get('payment/user/:userId')
   @ApiOperation({
-    summary: '포인트 내역 조회',
-    description: '사용자의 포인트 내역을 조회합니다.',
+    summary: '사용자 결제 내역 조회',
+    description: '특정 사용자의 모든 결제 내역을 조회합니다.',
   })
   @ApiParam({ name: 'userId', description: '사용자 ID' })
   @ApiResponse({
     status: 200,
-    description: '포인트 내역 조회 성공',
+    description: '사용자 결제 내역 조회 성공',
     type: ResponseDto,
   })
-  async getPointHistory(
+  async getUserPaymentHistory(
     @Param('userId', ParseIntPipe) userId: number,
   ): Promise<ResponseDto> {
-    const pointHistory = await this.orderService.getPointHistory(userId);
+    const payments = await this.orderService.getPaymentHistory(userId);
 
     return {
       success: true,
-      data: pointHistory,
-      message: '포인트 내역을 성공적으로 조회했습니다.',
+      data: payments,
+      message: '사용자 결제 내역을 성공적으로 조회했습니다.',
     };
   }
 }

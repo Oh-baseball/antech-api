@@ -23,6 +23,8 @@ import {
   AuthenticateDto,
   AuthResultDto,
   WalletInfoDto,
+  ChargePointsDto,
+  PointChargeResultDto,
 } from '../dto/user.dto';
 import { ResponseDto } from '../dto/response.dto';
 
@@ -362,6 +364,60 @@ export class UserController {
       message: isValid
         ? '비밀번호가 일치합니다.'
         : '비밀번호가 일치하지 않습니다.',
+    };
+  }
+
+  /* -------------------------------------------------------------
+     포인트 충전 관리
+  ------------------------------------------------------------- */
+
+  @Post(':id/charge-points')
+  @ApiOperation({
+    summary: '포인트 충전',
+    description: '사용자의 포인트를 충전합니다.',
+  })
+  @ApiParam({ name: 'id', description: '사용자 ID' })
+  @ApiResponse({
+    status: 201,
+    description: '포인트 충전 성공',
+    type: ResponseDto,
+  })
+  async chargePoints(
+    @Param('id', ParseIntPipe) userId: number,
+    @Body() chargePointsDto: ChargePointsDto,
+  ): Promise<ResponseDto> {
+    // DTO에 사용자 ID 설정
+    chargePointsDto.user_id = userId;
+
+    const chargeResult = await this.userService.chargePoints(chargePointsDto);
+
+    return {
+      success: true,
+      data: chargeResult,
+      message: '포인트가 성공적으로 충전되었습니다.',
+    };
+  }
+
+  @Get(':id/charge-history')
+  @ApiOperation({
+    summary: '포인트 충전 내역 조회',
+    description: '사용자의 포인트 충전 내역을 조회합니다.',
+  })
+  @ApiParam({ name: 'id', description: '사용자 ID' })
+  @ApiResponse({
+    status: 200,
+    description: '포인트 충전 내역 조회 성공',
+    type: ResponseDto,
+  })
+  async getPointChargeHistory(
+    @Param('id', ParseIntPipe) userId: number,
+  ): Promise<ResponseDto> {
+    const chargeHistory = await this.userService.getPointChargeHistory(userId);
+
+    return {
+      success: true,
+      data: chargeHistory,
+      message: '포인트 충전 내역을 성공적으로 조회했습니다.',
     };
   }
 }
