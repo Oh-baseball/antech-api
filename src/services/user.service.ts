@@ -544,7 +544,7 @@ export class UserService {
   async getUserPaymentMethods(userId: number): Promise<PaymentMethodDto[]> {
     const { data: paymentMethods, error } = await this.supabase
       .from('user_payment_methods')
-      .select('*')
+      .select('*, card_image_url')
       .eq('user_id', userId)
       .eq('is_active', true)
       .order('is_default', { ascending: false })

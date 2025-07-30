@@ -452,6 +452,15 @@ export class CreatePaymentMethodDto {
   alias_name?: string;
 
   @ApiProperty({
+    description: '카드 이미지 URL',
+    example: 'https://example.com/card-images/card.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  card_image_url?: string;
+
+  @ApiProperty({
     description: '기본 결제 수단 여부',
     example: false,
     required: false,
@@ -518,6 +527,15 @@ export class UpdatePaymentMethodDto {
   @IsOptional()
   @IsBoolean()
   is_default?: boolean;
+
+  @ApiProperty({
+    description: '카드 이미지 URL',
+    example: 'https://example.com/card-images/card.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  card_image_url?: string;
 
   @ApiProperty({
     description: '활성화 여부',
@@ -593,6 +611,13 @@ export class PaymentMethodDto {
     example: true,
   })
   is_active: boolean;
+
+  @ApiProperty({
+    description: '카드 이미지 URL',
+    example: 'https://example.com/card-images/card.png',
+    required: false,
+  })
+  card_image_url?: string;
 
   @ApiProperty({
     description: '생성일',
