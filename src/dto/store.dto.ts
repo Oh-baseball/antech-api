@@ -545,3 +545,82 @@ export class CreatePaymentDto {
   @Min(0)
   point_used?: number;
 }
+
+/* -------------------------------------------------------------
+   주문 취소 관련 DTO
+------------------------------------------------------------- */
+
+export class CancelOrderDto {
+  @ApiProperty({
+    description: '취소 사유',
+    example: '고객 변심',
+    maxLength: 500,
+  })
+  @IsString()
+  @MaxLength(500)
+  cancel_reason: string;
+
+  @ApiProperty({
+    description: '사용자 ID (권한 확인용)',
+    example: 1,
+  })
+  @IsNumber()
+  user_id: number;
+}
+
+export class CancelOrderResultDto {
+  @ApiProperty({
+    description: '취소 성공 여부',
+    example: true,
+  })
+  cancel_success: boolean;
+
+  @ApiProperty({
+    description: '주문 ID',
+    example: 'ORD_20241201_123456',
+  })
+  order_id: string;
+
+  @ApiProperty({
+    description: '환불 예상 금액',
+    example: 15000,
+  })
+  refund_amount: number;
+
+  @ApiProperty({
+    description: '환불될 포인트',
+    example: 1000,
+  })
+  refund_points: number;
+
+  @ApiProperty({
+    description: '차감될 적립 포인트',
+    example: 150,
+  })
+  deducted_earned_points: number;
+
+  @ApiProperty({
+    description: '환불 처리 상태',
+    example: 'PROCESSING',
+    enum: ['PROCESSING', 'COMPLETED', 'FAILED'],
+  })
+  refund_status: string;
+
+  @ApiProperty({
+    description: '환불 예상 소요 시간',
+    example: '카드 결제: 3-5일, 포인트: 즉시',
+  })
+  estimated_refund_time: string;
+
+  @ApiProperty({
+    description: '취소 처리 시간',
+    example: '2024-12-01T10:30:00Z',
+  })
+  cancelled_at: Date;
+
+  @ApiProperty({
+    description: '실패 사유 (실패 시에만)',
+    required: false,
+  })
+  failure_reason?: string;
+}

@@ -11,12 +11,14 @@ import {
   HttpCode,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { OrderService } from '../services/order.service';
 import {
   CreateOrderDto,
   CreatePaymentDto,
   AuthenticateAndPayDto,
+  CancelOrderDto,
+  CancelOrderResultDto,
 } from '../dto/store.dto';
 import { ResponseDto } from '../dto/response.dto';
 
@@ -262,6 +264,50 @@ export class OrderController {
       success: true,
       data: payments,
       message: '사용자 결제 내역을 성공적으로 조회했습니다.',
+    };
+  }
+
+  /* -------------------------------------------------------------
+     주문 취소
+  ------------------------------------------------------------- */
+
+  @Post(':orderId/cancel')
+  @ApiOperation({
+    summary: '주문 취소',
+    description: '주문을 취소하고 결제 금액을 환불 처리합니다. 카드/계좌 결제는 3-5일, 포인트는 즉시 환불됩니다.',
+  })
+  @ApiParam({ 
+    name: 'orderId', 
+    description: '취소할 주문 ID',
+    example: 'ORD_20241201_123456'
+  })
+  @ApiBody({
+    type: CancelOrderDto,
+    description: '주문 취소 요청 정보',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '주문 취소 성공',
+    type: CancelOrderResultDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청 (이미 취소된 주문, 권한 없음 등)',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '주문을 찾을 수 없음',
+  })
+  async cancelOrder(
+    @Param('orderId') orderId: string,
+    @Body() cancelOrderDto: CancelOrderDto,
+  ): Promise<ResponseDto> {
+    const result = await this.orderService.cancelOrder(orderId, cancelOrderDto);
+
+    return {
+      success: true,
+      data: result,
+      message: '주문이 성공적으로 취소되었습니다.',
     };
   }
 }

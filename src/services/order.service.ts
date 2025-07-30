@@ -16,6 +16,7 @@ import {
   CreatePaymentDto,
   PaymentResultDto,
 } from '../entities/store.entity';
+import { CancelOrderDto, CancelOrderResultDto } from '../dto/store.dto';
 import {
   PaymentType,
   PaymentStatus,
@@ -678,6 +679,301 @@ export class OrderService {
     }
 
     console.log(`사용자 ${userId}의 지갑이 자동 생성되었습니다.`);
+  }
+
+  /* -------------------------------------------------------------
+     주문 취소 처리
+  ------------------------------------------------------------- */
+
+  // 주문 취소
+  async cancelOrder(
+    orderId: string, 
+    cancelOrderDto: CancelOrderDto
+  ): Promise<CancelOrderResultDto> {
+    const { cancel_reason, user_id } = cancelOrderDto;
+
+    console.log('=== 주문 취소 처리 시작 ===');
+    console.log('취소 요청:', { orderId, user_id, cancel_reason });
+
+    // 1. 주문 정보 조회 및 권한 확인
+    const { data: order, error: orderError } = await this.supabase
+      .from('orders')
+      .select('*')
+      .eq('order_id', orderId)
+      .single();
+
+    if (orderError || !order) {
+      throw new NotFoundException('주문을 찾을 수 없습니다.');
+    }
+
+    // 사용자 권한 확인
+    if (order.user_id !== user_id) {
+      throw new BadRequestException('본인의 주문만 취소할 수 있습니다.');
+    }
+
+    // 취소 가능 상태 확인
+    if (!['PENDING', 'COMPLETED'].includes(order.order_status)) {
+      throw new BadRequestException(`취소할 수 없는 주문 상태입니다: ${order.order_status}`);
+    }
+
+    if (order.order_status === 'CANCELLED') {
+      throw new BadRequestException('이미 취소된 주문입니다.');
+    }
+
+    // 2. 결제 정보 조회
+    const { data: payments, error: paymentsError } = await this.supabase
+      .from('payment_history')
+      .select('*')
+      .eq('order_id', orderId)
+      .eq('payment_status', PaymentStatus.COMPLETED);
+
+    if (paymentsError) {
+      throw new Error(`결제 정보 조회 실패: ${paymentsError.message}`);
+    }
+
+    const completedPayments = payments || [];
+    console.log('완료된 결제 내역:', completedPayments);
+
+    if (completedPayments.length === 0) {
+      // 결제되지 않은 주문은 단순 취소
+      await this.supabase
+        .from('orders')
+        .update({ order_status: 'CANCELLED' })
+        .eq('order_id', orderId);
+
+      return {
+        cancel_success: true,
+        order_id: orderId,
+        refund_amount: 0,
+        refund_points: 0,
+        deducted_earned_points: 0,
+        refund_status: 'COMPLETED',
+        estimated_refund_time: '즉시 완료',
+        cancelled_at: new Date(),
+      };
+    }
+
+    // 3. 환불 처리
+    let totalRefundAmount = 0;
+    let totalRefundPoints = 0;
+    let totalDeductedEarnedPoints = 0;
+    const refundResults: Array<{
+      refund_amount: number;
+      refund_points: number;
+      deducted_earned_points: number;
+    }> = [];
+
+    for (const payment of completedPayments) {
+      try {
+        const refundResult = await this.processRefund(payment as PaymentHistory, cancel_reason);
+        refundResults.push(refundResult);
+        
+        totalRefundAmount += refundResult.refund_amount;
+        totalRefundPoints += refundResult.refund_points;
+        totalDeductedEarnedPoints += refundResult.deducted_earned_points;
+      } catch (error) {
+        console.error('환불 처리 실패:', error);
+        throw new Error(`환불 처리 실패: ${error.message}`);
+      }
+    }
+
+    // 4. 주문 상태 업데이트
+    await this.supabase
+      .from('orders')
+      .update({ order_status: 'CANCELLED' })
+      .eq('order_id', orderId);
+
+    // 5. 환불 소요 시간 계산
+    const hasCardPayment = completedPayments.some(p => 
+      [PaymentType.CARD, PaymentType.BANK_TRANSFER, PaymentType.MOBILE_PAY].includes(p.payment_method)
+    );
+    const estimatedRefundTime = hasCardPayment ? '카드/계좌: 3-5일, 포인트: 즉시' : '즉시 완료';
+
+    console.log('주문 취소 완료:', {
+      orderId,
+      totalRefundAmount,
+      totalRefundPoints,
+      totalDeductedEarnedPoints,
+    });
+
+    return {
+      cancel_success: true,
+      order_id: orderId,
+      refund_amount: totalRefundAmount,
+      refund_points: totalRefundPoints,
+      deducted_earned_points: totalDeductedEarnedPoints,
+      refund_status: 'PROCESSING',
+      estimated_refund_time: estimatedRefundTime,
+      cancelled_at: new Date(),
+    };
+  }
+
+  // 개별 결제 환불 처리
+  private async processRefund(payment: PaymentHistory, _cancelReason: string): Promise<{
+    refund_amount: number;
+    refund_points: number;
+    deducted_earned_points: number;
+  }> {
+    console.log('환불 처리 시작:', payment.payment_id);
+
+    const refundResult = {
+      refund_amount: 0,
+      refund_points: 0,
+      deducted_earned_points: 0,
+    };
+
+    // 1. 결제 수단별 환불 처리
+    if (payment.payment_amount > 0) {
+      // 외부 결제 환불
+      try {
+        await this.processExternalRefund(
+          payment.payment_method,
+          payment.payment_amount,
+          payment.external_transaction_id || '',
+        );
+        refundResult.refund_amount = payment.payment_amount;
+      } catch (error) {
+        console.error('외부 환불 처리 실패:', error);
+        throw error;
+      }
+    }
+
+    // 2. 사용된 포인트 환불
+    if (payment.point_used > 0) {
+      await this.refundPoints(payment.user_id, payment.point_used, payment.payment_id);
+      refundResult.refund_points = payment.point_used;
+    }
+
+    // 3. 적립된 포인트 차감
+    if (payment.point_earned > 0) {
+      await this.deductEarnedPoints(payment.user_id, payment.point_earned, payment.payment_id);
+      refundResult.deducted_earned_points = payment.point_earned;
+    }
+
+    // 4. 결제 상태 업데이트
+    await this.supabase
+      .from('payment_history')
+      .update({ 
+        payment_status: PaymentStatus.REFUNDED,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('payment_id', payment.payment_id);
+
+    return refundResult;
+  }
+
+  // 외부 결제 환불 처리
+  private async processExternalRefund(
+    paymentMethod: PaymentType,
+    amount: number,
+    externalTransactionId: string,
+  ): Promise<void> {
+    console.log('외부 환불 처리:', { paymentMethod, amount, externalTransactionId });
+
+    if (paymentMethod === PaymentType.POINT) {
+      // 포인트 결제는 즉시 환불 처리
+      return;
+    }
+
+    // 실제로는 각 결제사 환불 API 호출
+    // 여기서는 모의 처리
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // 환불 실패 시뮬레이션 (2% 확률)
+    if (Math.random() < 0.02) {
+      throw new Error('외부 환불 처리 실패');
+    }
+
+    console.log('외부 환불 성공:', externalTransactionId);
+  }
+
+  // 포인트 환불 (사용된 포인트 복원)
+  private async refundPoints(userId: number, pointAmount: number, paymentId: string): Promise<void> {
+    console.log('포인트 환불 처리:', { userId, pointAmount, paymentId });
+
+    // 현재 지갑 조회
+    const { data: wallet, error: walletError } = await this.supabase
+      .from('user_wallet')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (walletError || !wallet) {
+      throw new Error('사용자 지갑을 찾을 수 없습니다.');
+    }
+
+    // 지갑 업데이트 (사용된 포인트 복원)
+    const { error: updateError } = await this.supabase
+      .from('user_wallet')
+      .update({
+        point_balance: wallet.point_balance + pointAmount,
+        total_used_points: Math.max(0, wallet.total_used_points - pointAmount),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      throw new Error(`포인트 환불 실패: ${updateError.message}`);
+    }
+
+    // 포인트 거래 내역 기록
+    await this.supabase.from('point_history').insert({
+      user_id: userId,
+      payment_id: paymentId,
+      transaction_type: PointTransactionType.REFUND,
+      amount: pointAmount,
+      balance_after: wallet.point_balance + pointAmount,
+      description: `주문 취소로 인한 포인트 환불`,
+      created_at: new Date().toISOString(),
+    });
+
+    console.log('포인트 환불 완료:', { userId, pointAmount });
+  }
+
+  // 적립 포인트 차감
+  private async deductEarnedPoints(userId: number, pointAmount: number, paymentId: string): Promise<void> {
+    console.log('적립 포인트 차감:', { userId, pointAmount, paymentId });
+
+    // 현재 지갑 조회
+    const { data: wallet, error: walletError } = await this.supabase
+      .from('user_wallet')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (walletError || !wallet) {
+      throw new Error('사용자 지갑을 찾을 수 없습니다.');
+    }
+
+    // 잔액이 부족한 경우 가능한 만큼만 차감
+    const deductAmount = Math.min(pointAmount, wallet.point_balance);
+    
+    // 지갑 업데이트
+    const { error: updateError } = await this.supabase
+      .from('user_wallet')
+      .update({
+        point_balance: wallet.point_balance - deductAmount,
+        total_earned_points: Math.max(0, wallet.total_earned_points - pointAmount),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', userId);
+
+    if (updateError) {
+      throw new Error(`적립 포인트 차감 실패: ${updateError.message}`);
+    }
+
+    // 포인트 거래 내역 기록
+    await this.supabase.from('point_history').insert({
+      user_id: userId,
+      payment_id: paymentId,
+      transaction_type: PointTransactionType.EXPIRE,
+      amount: -deductAmount,
+      balance_after: wallet.point_balance - deductAmount,
+      description: `주문 취소로 인한 적립 포인트 차감`,
+      created_at: new Date().toISOString(),
+    });
+
+    console.log('적립 포인트 차감 완료:', { userId, deductAmount });
   }
 
   // 외부 결제 처리 (모의)
