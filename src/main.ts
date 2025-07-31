@@ -44,6 +44,8 @@ async function bootstrap() {
     app.enableCors({
       origin: [
         'https://anpay.store',
+        'https://www.anpay.store',
+        'https://dh2ep87gva43g.cloudfront.net',
         'https://heroic-peony-7b58ca.netlify.app',
         'http://localhost:3000',
         'https://localhost:3000',
