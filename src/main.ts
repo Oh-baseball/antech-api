@@ -23,19 +23,19 @@ async function bootstrap() {
     }),
   );
 
-  // CORS 설정
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://localhost:3000',
-      'https://anpay.store',
-      'https://heroic-peony-7b58ca.netlify.app',
-    ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    optionsSuccessStatus: 200,
-  });
+  // CORS 설정 - 로드밸런서/Nginx에서 처리하므로 비활성화
+  // app.enableCors({
+  //   origin: [
+  //     'http://localhost:3000',
+  //     'https://localhost:3000',
+  //     'https://anpay.store',
+  //     'https://heroic-peony-7b58ca.netlify.app',
+  //   ],
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  //   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  //   optionsSuccessStatus: 200,
+  // });
 
   // Swagger 설정 - 전면 개편
   const config = new DocumentBuilder()
