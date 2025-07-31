@@ -25,9 +25,11 @@ async function bootstrap() {
 
   // CORS 설정
   app.enableCors({
-    origin: true,
+    origin: ['http://localhost:3000', 'https://localhost:3000', 'https://anpay.store'],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200,
   });
 
   // Swagger 설정 - 전면 개편
