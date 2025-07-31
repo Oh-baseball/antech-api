@@ -23,19 +23,27 @@ async function bootstrap() {
     }),
   );
 
-  // CORS 설정 - 로드밸런서/Nginx에서 처리하므로 비활성화
-  // app.enableCors({
-  //   origin: [
-  //     'http://localhost:3000',
-  //     'https://localhost:3000',
-  //     'https://anpay.store',
-  //     'https://heroic-peony-7b58ca.netlify.app',
-  //   ],
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   credentials: true,
-  //   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  //   optionsSuccessStatus: 200,
-  // });
+  // CORS 설정 - 환경별 분기 처리
+  if (process.env.NODE_ENV === 'development') {
+    // 로컬 개발 환경에서는 NestJS에서 CORS 처리
+    app.enableCors({
+      origin: [
+        'http://localhost:3000',
+        'https://localhost:3000',
+        'http://localhost:5173', // Vite dev server
+        'http://127.0.0.1:3000',
+      ],
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      optionsSuccessStatus: 200,
+    });
+    console.log('개발 환경: NestJS에서 CORS 처리');
+  } else {
+    // 프로덕션 환경에서는 로드밸런서/Nginx에서 CORS 처리
+    // NestJS에서는 CORS 비활성화
+    console.log('프로덕션 환경: CORS는 로드밸런서에서 처리됩니다.');
+  }
 
   // Swagger 설정 - 전면 개편
   const config = new DocumentBuilder()
