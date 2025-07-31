@@ -25,7 +25,12 @@ async function bootstrap() {
 
   // CORS 설정
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://localhost:3000', 'https://anpay.store'],
+    origin: [
+      'http://localhost:3000',
+      'https://localhost:3000',
+      'https://anpay.store',
+      'https://heroic-peony-7b58ca.netlify.app',
+    ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
