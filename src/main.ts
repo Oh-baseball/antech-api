@@ -35,7 +35,7 @@ async function bootstrap() {
         'http://localhost:5173', // Vite dev server
         'http://127.0.0.1:3000',
       ],
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
@@ -45,14 +45,14 @@ async function bootstrap() {
     // 프로덕션 환경
     app.enableCors({
       origin: [
-        'https://anpay.store',
-        'https://www.anpay.store',
+        'https://anpay.store:8000',
+        'https://www.anpay.store:8000',
         'https://dh2ep87gva43g.cloudfront.net',
         'https://heroic-peony-7b58ca.netlify.app',
         'http://localhost:3000',
         'https://localhost:3000',
       ],
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
       credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
