@@ -38,7 +38,7 @@ async function bootstrap() {
         'https://localhost:3000',
       ],
       methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
-      credentials: false,
+      credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
     });
@@ -55,7 +55,7 @@ async function bootstrap() {
         'https://localhost:3000',
       ],
       methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
-      credentials: false,
+      credentials: true,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
     });
