@@ -45,8 +45,8 @@ async function bootstrap() {
     // 프로덕션 환경
     app.enableCors({
       origin: [
-        'https://anpay.store:8000',
-        'https://www.anpay.store:8000',
+        'https://anpay.store:3000',
+        'https://www.anpay.store:3000',
         'https://dh2ep87gva43g.cloudfront.net',
         'https://heroic-peony-7b58ca.netlify.app',
         'http://localhost:3000',
