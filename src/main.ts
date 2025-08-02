@@ -30,15 +30,16 @@ async function bootstrap() {
     // 로컬 개발 환경
     app.enableCors({
       origin: [
-        'https://anpay.store',
-        'https://www.anpay.store',
-        'https://dh2ep87gva43g.cloudfront.net',
-        'https://heroic-peony-7b58ca.netlify.app',
-        'http://localhost:3000',
-        'https://localhost:3000',
+        '*',
+        // 'https://anpay.store',
+        // 'https://www.anpay.store',
+        // 'https://dh2ep87gva43g.cloudfront.net',
+        // 'https://heroic-peony-7b58ca.netlify.app',
+        // 'http://localhost:3000',
+        // 'https://localhost:3000',
       ],
       methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
-      credentials: true,
+      credentials: false,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
     });
@@ -47,15 +48,16 @@ async function bootstrap() {
     // 프로덕션 환경
     app.enableCors({
       origin: [
-        'https://anpay.store',
-        'https://www.anpay.store',
-        'https://dh2ep87gva43g.cloudfront.net',
-        'https://heroic-peony-7b58ca.netlify.app',
-        'http://localhost:3000',
-        'https://localhost:3000',
+        '*',
+        // 'https://anpay.store',
+        // 'https://www.anpay.store',
+        // 'https://dh2ep87gva43g.cloudfront.net',
+        // 'https://heroic-peony-7b58ca.netlify.app',
+        // 'http://localhost:3000',
+        // 'https://localhost:3000',
       ],
       methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
-      credentials: true,
+      credentials: false,
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       optionsSuccessStatus: 200,
     });
