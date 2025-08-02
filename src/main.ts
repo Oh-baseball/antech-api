@@ -11,6 +11,8 @@ async function bootstrap() {
   // 프록시 서버 헤더 신뢰 설정
   app.set('trust proxy', true);
 
+  app.setGlobalPrefix('api');
+
   // 글로벌 예외 필터 적용
   app.useGlobalFilters(new AllExceptionsFilter());
 
