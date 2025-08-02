@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { DatabaseConfig } from './config/database.config';
 
 @ApiTags('🏠 system')
-@Controller()
+@Controller('api')
 export class AppController {
   constructor(
     private readonly appService: AppService,
