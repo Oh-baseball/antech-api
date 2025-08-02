@@ -30,6 +30,7 @@ async function bootstrap() {
     // 로컬 개발 환경
     app.enableCors({
       origin: [
+        'anpay-208100079.ap-northeast-2.elb.amazonaws.com',
         'https://anpay.store',
         'https://www.anpay.store',
         'https://dh2ep87gva43g.cloudfront.net',
@@ -47,6 +48,7 @@ async function bootstrap() {
     // 프로덕션 환경
     app.enableCors({
       origin: [
+        'anpay-208100079.ap-northeast-2.elb.amazonaws.com',
         'https://anpay.store',
         'https://www.anpay.store',
         'https://dh2ep87gva43g.cloudfront.net',
